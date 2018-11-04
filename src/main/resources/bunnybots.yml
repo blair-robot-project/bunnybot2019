@@ -5,6 +5,10 @@ logger:
     telemetryLogFilename: "/home/lvuser/logs/telemetryLog-"
     loggables:
         - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+          '@id': outputMotor
+          port: 11
+          brakeMode: true
+        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
             '@id': intakeMotor
             port: 12
             brakeMode: true
@@ -266,4 +270,22 @@ buttons:
                   org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
                     intakeMotor
                 inFastVel: 0.8
+        action: WHEN_PRESSED
+    -   button: # Controls output
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': outputButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 3
+        command:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
+            '@id': toggleOutput
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                '@id': output
+                motor:
+                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                    outputMotor
+                outFastVel: 0.8
         action: WHEN_PRESSED
