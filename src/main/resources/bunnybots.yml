@@ -4,6 +4,10 @@ logger:
     eventLogFilename: "/home/lvuser/logs/eventLog-"
     telemetryLogFilename: "/home/lvuser/logs/telemetryLog-"
     loggables:
+        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+            '@id': intakeMotor
+            port: 12
+            brakeMode: true
         - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
             '@id': PDP
             canID: 4
@@ -244,4 +248,22 @@ buttons:
               subsystem:
                 org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
                   cubeFlipper
+        action: WHEN_PRESSED
+    -   button: # Controls intake
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': intakeButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 3
+        command:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
+            '@id': toggleIntake
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                '@id': intake
+                motor:
+                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                    intakeMotor
+                inFastVel: 0.8
         action: WHEN_PRESSED
