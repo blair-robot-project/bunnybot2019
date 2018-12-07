@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.drive.omnidirectional.DriveOmnidirectional;
+import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectional;
 import org.usfirst.frc.team449.robot.other.Logger;
 
@@ -15,7 +16,7 @@ import org.usfirst.frc.team449.robot.other.Logger;
  * An omnidirectional drive control.
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class OmnidirectionalDrive<T extends Subsystem & DriveOmnidirectional> extends Command {
+public class OmnidirectionalDrive<T extends Subsystem & DriveOmnidirectional> extends Command implements Loggable {
 
 	/**
 	 * The OI used for input.
@@ -29,6 +30,11 @@ public class OmnidirectionalDrive<T extends Subsystem & DriveOmnidirectional> ex
 	 */
 	@NotNull
 	private final T subsystem;
+
+	/**
+	 * Motion commands for logging.
+	 */
+	private double longitudinalCommand, lateralCommand, rotationalCommand;
 
 	/**
 	 * Default constructor
@@ -60,7 +66,10 @@ public class OmnidirectionalDrive<T extends Subsystem & DriveOmnidirectional> ex
 	@Override
 	protected void execute() {
 		double[] motionCommands = oi.getMotionCommandsCached();
-		subsystem.setDirection(motionCommands[0], motionCommands[1], motionCommands[2]);
+		longitudinalCommand = motionCommands[0];
+		lateralCommand = motionCommands[1];
+		rotationalCommand = motionCommands[2];
+		subsystem.setDirection(longitudinalCommand, lateralCommand, rotationalCommand);
 	}
 
 	/**
@@ -83,4 +92,46 @@ public class OmnidirectionalDrive<T extends Subsystem & DriveOmnidirectional> ex
 		subsystem.fullStop();
 	}
 
+	/**
+	 * Get the headers for the data this subsystem logs every loop.
+	 *
+	 * @return An N-length array of String labels for data, where N is the length of the Object[] returned by getData().
+	 */
+	@NotNull
+	@Override
+	public String[] getHeader() {
+		return new String[] {
+				"running",
+				"longitudinal_command",
+				"lateral_command",
+				"rotational_command"
+		};
+	}
+
+	/**
+	 * Get the data this subsystem logs every loop.
+	 *
+	 * @return An N-length array of Objects, where N is the number of labels given by getHeader.
+	 */
+	@NotNull
+	@Override
+	public Object[] getData() {
+		return new Object[]{
+				this.isRunning(),
+				longitudinalCommand,
+				lateralCommand,
+				rotationalCommand
+		};
+	}
+
+	/**
+	 * Get the name of this object.
+	 *
+	 * @return A string that will identify this object in the log file.
+	 */
+	@NotNull
+	@Override
+	public String getLogName() {
+		return "OmnidirectionalDrive";
+	}
 }

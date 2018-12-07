@@ -1,6 +1,6 @@
 package org.usfirst.frc.team449.robot.drive.omnidirectional;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.drive.Vector2d;
@@ -15,6 +15,8 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
 /**
  * A mecanum drive, which uses mecanum wheels to drive omnidirectionally.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
+@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
 public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, Loggable {
 
 	/**
@@ -48,8 +50,15 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 				   cachedFrontRightMotorPos, cachedFrontLeftMotorPos, cachedRearMotorPos, cachedRearRightMotorPos;
 
 	/**
-	 * Creates a subsystem. This will set the name to the name of the class.
+	 * Default constructor.
+	 *
+	 * @param frontRightMotor The motor for the front right wheel.
+	 * @param frontLeftMotor  The motor for the front left wheel.
+	 * @param rearLeftMotor   The motor for the rear left wheel.
+	 * @param rearRightMotor  The motor for the rear right wheel.
+	 * @param ahrs            The NavX gyro for calculating this drive's angular displacement.
 	 */
+	@JsonCreator
 	public DriveMecanum(@NotNull @JsonProperty(required = true) FPSTalon frontRightMotor,
 	                    @NotNull @JsonProperty(required = true) FPSTalon frontLeftMotor,
 	                    @NotNull @JsonProperty(required = true) FPSTalon rearLeftMotor,

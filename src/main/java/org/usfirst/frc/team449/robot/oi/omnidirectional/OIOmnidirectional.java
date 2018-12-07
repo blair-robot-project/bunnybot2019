@@ -1,14 +1,18 @@
 package org.usfirst.frc.team449.robot.oi.omnidirectional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.jetbrains.annotations.NotNull;
+import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.oi.throttles.Throttle;
 
 /**
  * An OI to control a robot with an omnidirectional drive.
  */
-public class OIOmnidirectional implements OIOmnidirectionalInterface {
+@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
+public class OIOmnidirectional implements OIOmnidirectionalInterface, Loggable {
 
 	/**
 	 * Cached longitudinal/lateral/rotational values.
