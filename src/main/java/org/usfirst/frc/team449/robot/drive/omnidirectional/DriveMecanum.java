@@ -2,8 +2,6 @@ package org.usfirst.frc.team449.robot.drive.omnidirectional;
 
 import com.fasterxml.jackson.annotation.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase;
-import edu.wpi.first.wpilibj.drive.Vector2d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.MecanumComponent;
@@ -46,8 +44,8 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 * Cached values for various sensor readings.
 	 */
 	@Nullable
-	private Double cachedFrontRightMotorVel, cachedFrontLeftMotorVel, cachedRearMotorVel, cachedRearRightMotorVel,
-				   cachedFrontRightMotorPos, cachedFrontLeftMotorPos, cachedRearMotorPos, cachedRearRightMotorPos;
+	private Double cachedFrontRightMotorVel, cachedFrontLeftMotorVel, cachedRearLeftMotorVel, cachedRearRightMotorVel,
+				   cachedFrontRightMotorPos, cachedFrontLeftMotorPos, cachedRearLeftMotorPos, cachedRearRightMotorPos;
 
 	/**
 	 * Default constructor.
@@ -170,13 +168,13 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public void update() {
-		cachedFrontRightMotorVel = getRearRightMotorVel();
+		cachedFrontRightMotorVel = getFrontRightMotorVel();
 		cachedFrontLeftMotorVel = getFrontLeftMotorVel();
-		cachedRearMotorVel = getRearRightMotorVel();
+		cachedRearLeftMotorVel = getRearLeftMotorVel();
 		cachedRearRightMotorVel = getRearRightMotorVel();
 		cachedFrontRightMotorPos = getFrontRightMotorPos();
 		cachedFrontLeftMotorPos = getFrontLeftMotorPos();
-		cachedRearMotorPos = getRearRightMotorPos();
+		cachedRearLeftMotorPos = getRearLeftMotorPos();
 		cachedRearRightMotorPos = getRearRightMotorPos();
 	}
 
@@ -373,7 +371,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getFrontRightMotorVelCached() {
-		return frontRightMotor.getVelocity();
+		return cachedFrontRightMotorVel;
 	}
 
 	/**
@@ -383,7 +381,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getFrontLeftMotorVelCached() {
-		return frontLeftMotor.getVelocity();
+		return cachedFrontLeftMotorVel;
 	}
 
 	/**
@@ -393,7 +391,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getRearLeftMotorVelCached() {
-		return rearLeftMotor.getVelocity();
+		return cachedRearLeftMotorVel;
 	}
 
 	/**
@@ -403,7 +401,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getRearRightMotorVelCached() {
-		return rearRightMotor.getVelocity();
+		return cachedRearRightMotorVel;
 	}
 
 	/**
@@ -413,7 +411,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getFrontRightMotorPosCached() {
-		return frontRightMotor.getPositionFeet();
+		return cachedFrontRightMotorPos;
 	}
 
 	/**
@@ -423,7 +421,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getFrontLeftMotorPosCached() {
-		return frontLeftMotor.getPositionFeet();
+		return cachedFrontLeftMotorPos;
 	}
 
 	/**
@@ -433,7 +431,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getRearLeftMotorPosCached() {
-		return rearLeftMotor.getPositionFeet();
+		return cachedRearLeftMotorPos;
 	}
 
 	/**
@@ -443,7 +441,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Nullable
 	private Double getRearRightMotorPosCached() {
-		return rearRightMotor.getPositionFeet();
+		return cachedRearRightMotorPos;
 	}
 
 }

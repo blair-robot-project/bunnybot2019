@@ -67,9 +67,13 @@ public class MecanumComponent {
 
 		//Compute wheel speeds
 		double[] motorOutputs = new double[4];
+		//Front right
 		motorOutputs[0] = input.x - input.y + desiredRotationalVelocity;
+		//Front left
 		motorOutputs[1] = input.x + input.y + desiredRotationalVelocity;
+		//Rear left
 		motorOutputs[2] = -input.x + input.y + desiredRotationalVelocity;
+		//Rear right
 		motorOutputs[3] = -input.x - input.y + desiredRotationalVelocity;
 
 		//Normalize wheel speeds
