@@ -90,7 +90,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public void setDirection(double desiredLongitudinalVelocity, double desiredLateralVelocity, double desiredRotationalVelocity) {
-		component.updateDesiredVelocities(desiredLongitudinalVelocity, desiredLateralVelocity, desiredRotationalVelocity, ahrs.getAngularDisplacement());
+		component.updateDesiredVelocities(desiredLongitudinalVelocity, desiredLateralVelocity, desiredRotationalVelocity, ahrs.getCachedHeading());
 		double[] motorOutputs = component.calculateMotorOutputs();
 		frontRightMotor.setVelocity(motorOutputs[0]);
 		frontLeftMotor.setVelocity(motorOutputs[1]);

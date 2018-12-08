@@ -63,18 +63,18 @@ public class MecanumComponent {
 	public double[] calculateMotorOutputs() {
 		// Compensate for gyro angle.
 		Vector2d input = new Vector2d(desiredLateralVelocity, desiredLongitudinalVelocity);
-		input.rotate(gyroAngularDisplacement);
+		input.rotate(-gyroAngularDisplacement);
 
 		//Compute wheel speeds
 		double[] motorOutputs = new double[4];
 		//Front right
-		motorOutputs[0] = input.x - input.y + desiredRotationalVelocity;
+		motorOutputs[0] = -input.x + input.y + desiredRotationalVelocity;
 		//Front left
-		motorOutputs[1] = input.x + input.y + desiredRotationalVelocity;
+		motorOutputs[1] = input.x + input.y - desiredRotationalVelocity;
 		//Rear left
 		motorOutputs[2] = -input.x + input.y + desiredRotationalVelocity;
 		//Rear right
-		motorOutputs[3] = -input.x - input.y + desiredRotationalVelocity;
+		motorOutputs[3] = input.x + input.y - desiredRotationalVelocity;
 
 		//Normalize wheel speeds
 		double maxMagnitude = Math.abs(motorOutputs[0]);

@@ -51,18 +51,17 @@ logger:
                     feedbackDevice: QuadEncoder
                     encoderCPR: 256
                     perGearSettings:
-                        - &lowGear
-                          feedForwardComponent:
-                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
-                              kAFwd: 0.12919953323
-                              kVFwd: 1.32498443423
-                              interceptVoltageFwd: 0.797588
-                              kARev: 0.15941277553
-                              kVRev: 1.28936521731
-                              interceptVoltageRev: 0.7743393
-                          maxSpeed: 6.0
-                          kP: 0.15
-                          motionProfilePFwd: 0.5
+                        - &gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.12919953323
+#                              kVFwd: 1.32498443423
+#                              interceptVoltageFwd: 0.797588
+#                              kARev: 0.15941277553
+#                              kVRev: 1.28936521731
+#                              interceptVoltageRev: 0.7743393
+#                          maxSpeed: 6.0
+#                          kP: 0.15
                     minNumPointsInBottomBuffer: 10
                     updaterProcessPeriodSecs: 0.005
                     statusFrameRatesMillis: !!map
@@ -76,51 +75,51 @@ logger:
                     reverseOutput: true
                     reverseSensor: false
                     perGearSettings:
-                        - <<: *lowGear
-                          feedForwardComponent:
-                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
-                              kAFwd: 0.1131952403
-                              kVFwd: 1.32948238154
-                              interceptVoltageFwd: 0.793247
-                              kARev: 0.12721050276
-                              kVRev: 1.29887888885
-                              interceptVoltageRev: 0.7668543
+                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
             rearLeftMotor:
                 org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     <<: *frontRightMotor
                     '@id': rearLeftMotor
-                    name: frontLeft
+                    name: rearLeft
                     port: 20
                     reverseOutput: true
                     reverseSensor: false
                     perGearSettings:
-                        - <<: *lowGear
-                          feedForwardComponent:
-                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
-                              kAFwd: 0.1131952403
-                              kVFwd: 1.32948238154
-                              interceptVoltageFwd: 0.793247
-                              kARev: 0.12721050276
-                              kVRev: 1.29887888885
-                              interceptVoltageRev: 0.7668543
+                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
             rearRightMotor:
                 org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     <<: *frontRightMotor
                     '@id': rearRightMotor
-                    name: frontLeft
+                    name: rearRight
                     port: 14
                     reverseOutput: true
                     reverseSensor: false
                     perGearSettings:
-                        - <<: *lowGear
-                          feedForwardComponent:
-                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
-                              kAFwd: 0.1131952403
-                              kVFwd: 1.32948238154
-                              interceptVoltageFwd: 0.793247
-                              kARev: 0.12721050276
-                              kVRev: 1.29887888885
-                              interceptVoltageRev: 0.7668543
+                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
             ahrs:
                 org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
                     '@id': navX
@@ -147,65 +146,33 @@ logger:
                                 1 : 1
                                 3 : 3
             longitudinalThrottle:
-                org.usfirst.frc.team449.robot.oi.throttles.ThrottleSum:
+                org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+                    <<: *rotThrottle
                     '@id': longitudinalThrottle
-                    throttles:
-                        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
-                            <<: *rotThrottle
-                            '@id': posThrottle
-                            stick: driverGamepad
-                            axis: 1
-                            inverted: false
-                            deadband: 0.05
-                            polynomial:
-                                org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
-                                    '@id': posPoly
-                                    powerToCoefficientMap: !!map
-                                        1 : 2
-                                        3 : 1
-                        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
-                            <<: *rotThrottle
-                            '@id': negThrottle
-                            stick: driverGamepad
-                            axis: 2
-                            inverted: true
-                            deadband: 0.05
-                            polynomial:
-                                org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
-                                    '@id': negPoly
-                                    powerToCoefficientMap: !!map
-                                        1 : 2
-                                        3 : 1
+                    stick: driverGamepad
+                    axis: 1
+                    inverted: true
+                    deadband: 0.05
+                    polynomial:
+                        org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
+                            '@id': posPoly
+                            powerToCoefficientMap: !!map
+                                1 : 2
+                                3 : 1
             lateralThrottle:
-                org.usfirst.frc.team449.robot.oi.throttles.ThrottleSum:
+                org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+                    <<: *rotThrottle
                     '@id': lateralThrottle
-                    throttles:
-                        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
-                            <<: *rotThrottle
-                            '@id': posThrottleLateral
-                            stick: driverGamepad
-                            axis: 0
-                            inverted: false
-                            deadband: 0.05
-                            polynomial:
-                                org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
-                                    '@id': posPolyLateral
-                                    powerToCoefficientMap: !!map
-                                        1 : 2
-                                        3 : 1
-                        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
-                            <<: *rotThrottle
-                            '@id': negThrottleLateral
-                            stick: driverGamepad
-                            axis: 2
-                            inverted: true
-                            deadband: 0.05
-                            polynomial:
-                                org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
-                                    '@id': negPolyLateral
-                                    powerToCoefficientMap: !!map
-                                        1 : 2
-                                        3 : 1
+                    stick: driverGamepad
+                    axis: 0
+                    inverted: false
+                    deadband: 0.05
+                    polynomial:
+                        org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
+                            '@id': posPolyLateral
+                            powerToCoefficientMap: !!map
+                                1 : 2
+                                3 : 1
         - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
             rotThrottle
         - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
