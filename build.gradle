@@ -15,7 +15,7 @@ group 'org.usfirst.frc.team449.test-bed'
 version '1.0'
 
 def TEAM = 449
-def ROBOT_CLASS = "org.usfirst.frc.team449.robot.Robot"
+def ROBOT_CLASS = "org.usfirst.frc.team449.robot.PracticeFrame"
 
 repositories {
     mavenCentral()
