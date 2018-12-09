@@ -125,7 +125,7 @@ logger:
                     '@id': navX
                     port: kMXP
                     invertYaw: true
-        - org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectional:
+        - org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
             '@id': oi
             rotThrottle:
                 org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
@@ -203,7 +203,7 @@ logger:
                 org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
                     drive
             oi:
-                org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectional:
+                org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
                     oi
 defaultCommands:
     - subsystem:
@@ -224,7 +224,7 @@ updater:
         updatables:
             - org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
                 drive
-            - org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectional:
+            - org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
                 oi
             - org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
                 navX

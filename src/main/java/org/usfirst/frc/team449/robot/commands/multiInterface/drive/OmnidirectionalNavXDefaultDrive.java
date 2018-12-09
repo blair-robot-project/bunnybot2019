@@ -6,10 +6,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.drive.omnidirectional.DriveOmnidirectional;
-import org.usfirst.frc.team449.robot.drive.omnidirectional.DriveOmnidirectional;
 import org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.RampComponent;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
-import org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalInterface;
 import org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectional;
 import org.usfirst.frc.team449.robot.other.BufferTimer;
 import org.usfirst.frc.team449.robot.other.Logger;
@@ -33,7 +31,7 @@ public class OmnidirectionalNavXDefaultDrive<T extends Subsystem & DriveOmnidire
      * The OI giving the input stick values.
      */
     @NotNull
-    protected final OIOmnidirectionalInterface oi;
+    protected final OIOmnidirectional oi;
     /**
      * The maximum velocity for the robot to be at in order to switch to driveStraight, in degrees/sec
      */
@@ -56,6 +54,9 @@ public class OmnidirectionalNavXDefaultDrive<T extends Subsystem & DriveOmnidire
      * Logging variables.
      */
     private double rawOutput, processedOutput, finalOutput;
+    /**
+     * OI outputs for longitudinal and latitudinal movement. Fields to avoid garbage collection.
+     */
     private double longOutput, latOutput;
 
     /**
@@ -96,7 +97,7 @@ public class OmnidirectionalNavXDefaultDrive<T extends Subsystem & DriveOmnidire
                                            double kD,
                                            @NotNull @JsonProperty(required = true) BufferTimer driveStraightLoopEntryTimer,
                                            @NotNull @JsonProperty(required = true) T subsystem,
-                                           @NotNull @JsonProperty(required = true) OIOmnidirectionalInterface oi,
+                                           @NotNull @JsonProperty(required = true) OIOmnidirectional oi,
                                            @Nullable RampComponent rampComponent) {
         //Assign stuff
         super(absoluteTolerance, onTargetBuffer, minimumOutput, maximumOutput, loopTimeMillis, deadband, inverted, subsystem, kP, kI, kD);
