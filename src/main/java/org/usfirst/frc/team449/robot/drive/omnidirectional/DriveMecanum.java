@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.MecanumComponent;
+import org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectional;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
@@ -15,7 +16,7 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, Loggable {
+public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, DriveUnidirectional, Loggable {
 
 	/**
 	 * The front right, front left, rear left, and rear right Talons.
@@ -444,4 +445,97 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 		return cachedRearRightMotorPos;
 	}
 
+	/**
+	 * Set the output of each side of the drive.
+	 *
+	 * @param left  The output for the left side of the drive, from [-1, 1]
+	 * @param right the output for the right side of the drive, from [-1, 1]
+	 */
+	@Override
+	public void setOutput(double left, double right) {
+		frontLeftMotor.setVelocity(left);
+		rearLeftMotor.setVelocity(left);
+		frontRightMotor.setVelocity(right);
+		rearRightMotor.setVelocity(right);
+	}
+
+	/**
+	 * Get the velocity of the left side of the drive.
+	 *
+	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getLeftVel() {
+		return (frontLeftMotor.getVelocity() + rearLeftMotor.getVelocity()) / 2.;
+	}
+
+	/**
+	 * Get the velocity of the right side of the drive.
+	 *
+	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getRightVel() {
+		return (frontRightMotor.getVelocity() + rearRightMotor.getVelocity()) / 2.;
+	}
+
+	/**
+	 * Get the position of the left side of the drive.
+	 *
+	 * @return The signed position in feet, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getLeftPos() {
+		return (frontLeftMotor.getPositionFeet() + rearLeftMotor.getPositionFeet()) / 2.;
+	}
+
+	/**
+	 * Get the position of the right side of the drive.
+	 *
+	 * @return The signed position in feet, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getRightPos() {
+		return (frontRightMotor.getPositionFeet() + rearRightMotor.getPositionFeet()) / 2.;
+	}
+
+	/**
+	 * Get the cached velocity of the left side of the drive.
+	 *
+	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getLeftVelCached() {
+		return (cachedFrontLeftMotorVel + cachedRearLeftMotorVel) / 2.;
+	}
+
+	/**
+	 * Get the cached velocity of the right side of the drive.
+	 *
+	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getRightVelCached() {
+		return (cachedFrontRightMotorVel + cachedRearRightMotorVel) / 2.;
+	}
+
+	/**
+	 * Get the cached position of the left side of the drive.
+	 *
+	 * @return The signed position in feet, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getLeftPosCached() {
+		return (cachedFrontLeftMotorPos + cachedRearLeftMotorPos) / 2.;
+	}
+
+	/**
+	 * Get the cached position of the right side of the drive.
+	 *
+	 * @return The signed position in feet, or null if the drive doesn't have encoders.
+	 */
+	@Override
+	public @Nullable Double getRightPosCached() {
+		return (cachedFrontRightMotorPos + cachedRearRightMotorPos) / 2.;
+	}
 }

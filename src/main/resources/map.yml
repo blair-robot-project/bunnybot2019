@@ -44,14 +44,13 @@ logger:
                     reverseOutput: true
                     reverseSensor: false
                     enableBrakeMode: true
-                    postEncoderGearing: 0.2266546
-                    feetPerRotation: 1.042920176494184
+                    feetPerRotation: 1.570796
                     currentLimit: 35
                     enableVoltageComp: true
                     feedbackDevice: QuadEncoder
-                    encoderCPR: 256
-                    perGearSettings:
-                        - &gear
+                    encoderCPR: 250
+#                    perGearSettings:
+#                        - &gear
 #                          feedForwardComponent:
 #                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
 #                              kAFwd: 0.12919953323
@@ -72,10 +71,10 @@ logger:
                     '@id': frontLeftMotor
                     name: frontLeft
                     port: 16
-                    reverseOutput: true
+                    reverseOutput: false
                     reverseSensor: false
-                    perGearSettings:
-                        - <<: *gear
+#                    perGearSettings:
+#                        - <<: *gear
 #                          feedForwardComponent:
 #                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
 #                              kAFwd: 0.1131952403
@@ -90,10 +89,10 @@ logger:
                     '@id': rearLeftMotor
                     name: rearLeft
                     port: 20
-                    reverseOutput: true
+                    reverseOutput: false
                     reverseSensor: false
-                    perGearSettings:
-                        - <<: *gear
+#                    perGearSettings:
+#                        - <<: *gear
 #                          feedForwardComponent:
 #                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
 #                              kAFwd: 0.1131952403
@@ -110,8 +109,8 @@ logger:
                     port: 14
                     reverseOutput: true
                     reverseSensor: false
-                    perGearSettings:
-                        - <<: *gear
+#                    perGearSettings:
+#                        - <<: *gear
 #                          feedForwardComponent:
 #                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
 #                              kAFwd: 0.1131952403

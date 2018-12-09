@@ -72,9 +72,9 @@ public class MecanumComponent {
 		//Front left
 		motorOutputs[1] = input.x + input.y - desiredRotationalVelocity;
 		//Rear left
-		motorOutputs[2] = -input.x + input.y + desiredRotationalVelocity;
+		motorOutputs[2] = -input.x + input.y - desiredRotationalVelocity;
 		//Rear right
-		motorOutputs[3] = input.x + input.y - desiredRotationalVelocity;
+		motorOutputs[3] = input.x + input.y + desiredRotationalVelocity;
 
 		//Normalize wheel speeds
 		double maxMagnitude = Math.abs(motorOutputs[0]);
