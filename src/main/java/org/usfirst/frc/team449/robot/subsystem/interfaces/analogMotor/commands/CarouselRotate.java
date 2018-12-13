@@ -26,6 +26,7 @@ public class CarouselRotate extends Command {
     @JsonCreator
     public CarouselRotate(@NotNull @JsonProperty(required = true) AnalogMotorPosition motor){
         this.motor = motor;
+        requires(motor);
     }
 
     /**
@@ -43,7 +44,7 @@ public class CarouselRotate extends Command {
     @Override
     protected void execute(){
         if (ticks%50 == 0){
-            motor.set(ticks/50./12.);
+            motor.set((double)ticks/50./12.);
         }
         ticks++;
     }

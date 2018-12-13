@@ -15,13 +15,21 @@ logger:
                 rSquaredThreshhold: 0.75
         - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             '@id': carouselMotor
-            port: 15
+            port: 7
             enableBrakeMode: true
             PDP:
                 org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
             voltagePerCurrentLinReg:
                 bufferSize: 250
                 rSquaredThreshhold: 0.75
+            currentLimit: 35
+            enableVoltageComp: true
+            feedbackDevice: QuadEncoder
+            encoderCPR: 250
+            reverseSensor: false
+            reverseOutput: false
+            perGearSettings:
+              - kP: 0.15
         - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
             '@id': outputMotor
             port: 11
@@ -214,6 +222,19 @@ defaultCommands:
       command:
         org.usfirst.frc.team449.robot.drive.omnidirectional.commands.OmnidirectionalDrive:
             defaultDriveCommand
+    - subsystem:
+        org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+            '@id': carouselMotorSubsystem
+            motor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    carouselMotor
+            maxPos: 99999
+      command:
+        org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+            '@id': defaultCommand10
+            motor:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+                    carouselMotorSubsystem
 teleopStartupCommand:
     org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.commands.StartCompressor:
         '@id': startCompressor

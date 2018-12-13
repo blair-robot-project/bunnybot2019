@@ -88,8 +88,6 @@ public class ColorSensorButton extends MappedButton {
 
 		ticks++;
 
-		System.out.println(cachedRed);
-
 		if (false/*PracticeFrame.onRed*/) {
 			return cachedBlue > blueThreshold;
 		} else {
