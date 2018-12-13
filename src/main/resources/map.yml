@@ -231,6 +231,39 @@ autoStartupCommand:
                         outFastVel: 0.8
                 mode: OUT_SLOW
 buttons:
+    -   button:
+            org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
+                '@id': colorSensor
+                port: kOnboard
+                deviceAddress: 4
+                redThreshold: 97
+                blueThreshold: 95
+        command:
+            org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+                '@id': openAndCloseCarouselDoor
+                commandList:
+                    - org.usfirst.frc.team449.robot.commands.general.MappedWaitCommand:
+                        '@id': waitToReachDoor
+                        timeout: 1
+                    - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
+                        '@id': openCarouselDoor
+                        subsystem:
+                            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                                '@id': carouselDoor
+                                piston:
+                                    '@id': carouselDoorPiston
+                                    module: 0
+                                    forward: 1
+                                    reverse: 3
+                    - org.usfirst.frc.team449.robot.commands.general.MappedWaitCommand:
+                        '@id': waitForBallExit
+                        timeout: 1
+                    - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
+                        '@id': closeCarouselDoor
+                        subsystem:
+                            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                                carouselDoor
+        action: WHEN_PRESSED
     -   button: # Controls four pistons using the ABXY buttons and two motors using the joysticks.
           org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
             '@id': flipCubeButton
