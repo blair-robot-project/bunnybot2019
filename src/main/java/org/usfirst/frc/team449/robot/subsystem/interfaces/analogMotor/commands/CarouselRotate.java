@@ -43,7 +43,7 @@ public class CarouselRotate extends Command {
     @Override
     protected void execute(){
         if (ticks%50 == 0){
-            motor.set(ticks/50/12);
+            motor.set(ticks/50./12.);
         }
         ticks++;
     }
