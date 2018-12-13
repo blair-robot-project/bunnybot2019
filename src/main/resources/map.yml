@@ -177,8 +177,18 @@ logger:
             rearRightMotor
         - org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
             navX
-        - org.usfirst.frc.team449.robot.drive.omnidirectional.commands.OmnidirectionalDrive:
+        - org.usfirst.frc.team449.robot.commands.multiInterface.drive.OmnidirectionalNavXDefaultDrive:
             '@id': defaultDriveCommand
+            absoluteTolerance: 0
+            deadband: 2
+            maxAngularVelToEnterLoop: 15
+            inverted: false
+            rampComponent:
+                org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.RampComponent:
+                    maxChangePerSecond: 3
+            driveStraightLoopEntryTimer:
+                '@id': driveStraightLoopEntryTimer
+                bufferTimeSeconds: 0.15
             subsystem:
                 org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
                     drive
@@ -190,7 +200,7 @@ defaultCommands:
         org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
             drive
       command:
-        org.usfirst.frc.team449.robot.drive.omnidirectional.commands.OmnidirectionalDrive:
+        org.usfirst.frc.team449.robot.commands.multiInterface.drive.OmnidirectionalNavXDefaultDrive:
             defaultDriveCommand
 teleopStartupCommand:
     org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.commands.StartCompressor:
@@ -198,6 +208,7 @@ teleopStartupCommand:
         subsystem:
             org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
                 pneumatics
+
 updater:
     org.usfirst.frc.team449.robot.other.Updater:
         '@id': updater
@@ -219,8 +230,9 @@ autoStartupCommand:
                 subsystem:
                   org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyro:
                     drive
-                velocity: 3
+                velocity: 1
                 seconds: 3
+            - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
             - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
                 subsystem:
                     org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
