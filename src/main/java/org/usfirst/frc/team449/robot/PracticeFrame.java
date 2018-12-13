@@ -30,7 +30,7 @@ public class PracticeFrame extends TimedRobot {
     /**
      * The name of the map to read from. Should be overriden by a subclass to change the name.
      */
-    protected String mapName = "map.yml";
+    protected String mapName = "test.yml";
 
     /**
      * The object constructed directly from the yaml map.
@@ -112,7 +112,7 @@ public class PracticeFrame extends TimedRobot {
         }
 
         //Log
-        loggerNotifier.startSingle(0);
+        robotMap.getLogger().run();
     }
 
     /**
@@ -127,7 +127,7 @@ public class PracticeFrame extends TimedRobot {
         Scheduler.getInstance().run();
 
         //Log
-        loggerNotifier.startSingle(0);
+        robotMap.getLogger().run();
     }
 
     /**
@@ -152,7 +152,7 @@ public class PracticeFrame extends TimedRobot {
         }
 
         //Log
-        loggerNotifier.startSingle(0);
+        robotMap.getLogger().run();
     }
 
     /**
@@ -166,7 +166,7 @@ public class PracticeFrame extends TimedRobot {
         Scheduler.getInstance().run();
 
         //Log
-        loggerNotifier.startSingle(0);
+        robotMap.getLogger().run();
     }
 
     /**
@@ -200,6 +200,6 @@ public class PracticeFrame extends TimedRobot {
         this.robotMap.getUpdater().run();
 
         //Log
-        loggerNotifier.startSingle(0);
+        robotMap.getLogger().run();
     }
 }
