@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.other.Clock;
 import org.yaml.snakeyaml.Yaml;
@@ -17,15 +18,24 @@ import java.util.Map;
 public class PracticeFrame extends TimedRobot {
 
     /**
-     * Global variable for whether we are on the red alliance.
-     */
-    public static boolean onRed;
-
-    /**
      * The absolute filepath to the resources folder containing the config files.
      */
     @NotNull
     public static final String RESOURCES_PATH = "/home/lvuser/449_resources/";
+
+    /**
+     * Global variable for whether we are on the red alliance.
+     */
+    private static boolean onRed;
+
+    /**
+     * @return Whether we're on the red alliance.
+     */
+    @Contract(pure = true)
+    public static boolean isOnRed(){
+        return onRed;
+    }
+
 
     /**
      * The name of the map to read from. Should be overriden by a subclass to change the name.
@@ -35,7 +45,7 @@ public class PracticeFrame extends TimedRobot {
     /**
      * The object constructed directly from the yaml map.
      */
-    protected RobotMap robotMap;
+    protected AllianceRobotMap robotMap;
 
     /**
      * The Notifier running the logging thread.
@@ -73,7 +83,7 @@ public class PracticeFrame extends TimedRobot {
             mapper.registerModule(new WPIModule());
             mapper.registerModule(new JavaModule());
             //Deserialize the map into an object.
-            robotMap = mapper.readValue(fixed, RobotMap.class);
+            robotMap = mapper.readValue(fixed, AllianceRobotMap.class);
         } catch (IOException e) {
             //This is either the map file not being in the file system OR it being improperly formatted.
             System.out.println("Config file is bad/nonexistent!");
@@ -85,6 +95,9 @@ public class PracticeFrame extends TimedRobot {
 
         //Set fields from the map.
         this.loggerNotifier = new Notifier(robotMap.getLogger());
+
+        //Check alliance
+        PracticeFrame.onRed = this.robotMap.getOnRedSwitch().get();
 
         //Run the logger to write all the events that happened during initialization to a file.
         robotMap.getLogger().run();

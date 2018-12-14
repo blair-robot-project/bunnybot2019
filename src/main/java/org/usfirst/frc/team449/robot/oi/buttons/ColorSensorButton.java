@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.I2C;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.PracticeFrame;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedButton;
+import org.usfirst.frc.team449.robot.other.Clock;
 
 /**
  * A button that gets triggered by a reaching a certain color threshold.
@@ -26,19 +29,19 @@ public class ColorSensorButton extends MappedButton {
 	private final int redThreshold, blueThreshold;
 
 	/**
+	 * How long to wait after pinging the RIOduino before pinging it again, in milliseconds.
+	 */
+	private final long millisBetweenPings;
+
+	/**
 	 * Cached color values, since the RIOduino can't be pinged every robot tick
 	 */
 	private int cachedRed, cachedBlue;
 
 	/**
-	 * For delaying how often the I2C is pinged
+	 * The time that we last pinged the RIOduino to find the sensor reading
 	 */
-	private int ticks;
-
-	/**
-	 * How many robot ticks to wait before pinging the RIOdunio
-	 */
-	private static final int TICKS_PER_DUINO_PING = 20;
+	private long timeLastPinged;
 
 	/**
 	 * Default constructor.
@@ -47,16 +50,19 @@ public class ColorSensorButton extends MappedButton {
 	 * @param deviceAddress The address of the device on the I2C bus.
 	 * @param redThreshold  The threshold for red, over which the sensed object will be identified as red.
 	 * @param blueThreshold The threshold for blue, over which the sensed object will be identified as blue.
+	 * @param secondsBetweenDuinoPings How long to wait after pinging the RIOduino before pinging it again, in seconds. Defaults 0.05 seconds.
 	 */
 	@JsonCreator
-	public ColorSensorButton(@JsonProperty(required = true) I2C.Port port,
-	                         @JsonProperty(required = true) Integer deviceAddress,
-	                         @JsonProperty(required = true) Integer redThreshold,
-	                         @JsonProperty(required = true) Integer blueThreshold) {
-		i2c = new I2C(port, deviceAddress);
+	public ColorSensorButton(@JsonProperty(required = true) @NotNull I2C.Port port,
+							 @JsonProperty(required = true) int deviceAddress,
+							 @JsonProperty(required = true) int redThreshold,
+							 @JsonProperty(required = true) int blueThreshold,
+							 @Nullable Double secondsBetweenDuinoPings) {
+		this.i2c = new I2C(port, deviceAddress);
 		this.redThreshold = redThreshold;
 		this.blueThreshold = blueThreshold;
-		ticks = 0;
+		this.millisBetweenPings = secondsBetweenDuinoPings != null ? (long) (secondsBetweenDuinoPings * 1000) : 50;
+		this.timeLastPinged = 0;
 	}
 
 	private int[] readRGB() {
@@ -80,15 +86,14 @@ public class ColorSensorButton extends MappedButton {
 	 */
 	@Override
 	public boolean get() {
-		if (ticks % TICKS_PER_DUINO_PING == 0) {
+		if (Clock.currentTimeMillis() >= timeLastPinged + millisBetweenPings) {
 			int[] rgb = readRGB();
 			cachedRed = rgb[0];
 			cachedBlue = rgb[2];
+			timeLastPinged = Clock.currentTimeMillis();
 		}
 
-		ticks++;
-
-		if (false/*PracticeFrame.onRed*/) {
+		if (PracticeFrame.isOnRed()) {
 			return cachedBlue > blueThreshold;
 		} else {
 			return cachedRed > redThreshold;
