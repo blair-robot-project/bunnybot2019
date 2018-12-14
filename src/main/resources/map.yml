@@ -207,6 +207,12 @@ logger:
             oi:
                 org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
                     oi
+        - org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
+            '@id': colorSensor
+            port: kOnboard
+            deviceAddress: 4
+            redThreshold: 95
+            blueThreshold: 95
 defaultCommands:
     - subsystem:
         org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
@@ -281,11 +287,7 @@ updater:
 buttons:
     -   button:
             org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
-                '@id': colorSensor
-                port: kOnboard
-                deviceAddress: 4
-                redThreshold: 95
-                blueThreshold: 95
+                colorSensor
         command:
             org.usfirst.frc.team449.robot.commands.general.CommandSequence:
                 '@id': openAndCloseCarouselDoor

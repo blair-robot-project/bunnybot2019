@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.I2C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.PracticeFrame;
+import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedButton;
 import org.usfirst.frc.team449.robot.other.Clock;
 
@@ -15,7 +16,7 @@ import org.usfirst.frc.team449.robot.other.Clock;
  * A button that gets triggered by a reaching a certain color threshold.
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class ColorSensorButton extends MappedButton {
+public class ColorSensorButton extends MappedButton implements Loggable {
 
 	/**
 	 * The I2C this class is a wrapper on.
@@ -36,7 +37,7 @@ public class ColorSensorButton extends MappedButton {
 	/**
 	 * Cached color values, since the RIOduino can't be pinged every robot tick
 	 */
-	private int cachedRed, cachedBlue;
+	private int[] cachedRGB;
 
 	/**
 	 * The time that we last pinged the RIOduino to find the sensor reading
@@ -63,6 +64,7 @@ public class ColorSensorButton extends MappedButton {
 		this.blueThreshold = blueThreshold;
 		this.millisBetweenPings = secondsBetweenDuinoPings != null ? (long) (secondsBetweenDuinoPings * 1000) : 50;
 		this.timeLastPinged = 0;
+		this.cachedRGB = new int[3];
 	}
 
 	private int[] readRGB() {
@@ -87,17 +89,39 @@ public class ColorSensorButton extends MappedButton {
 	@Override
 	public boolean get() {
 		if (Clock.currentTimeMillis() >= timeLastPinged + millisBetweenPings) {
-			int[] rgb = readRGB();
-			cachedRed = rgb[0];
-			cachedBlue = rgb[2];
+			cachedRGB = readRGB();
 			timeLastPinged = Clock.currentTimeMillis();
 		}
 
 		if (PracticeFrame.isOnRed()) {
-			return cachedBlue > blueThreshold;
+			return cachedRGB[2] > blueThreshold;
 		} else {
-			return cachedRed > redThreshold;
+			return cachedRGB[0] > redThreshold;
 		}
 	}
 
+	@NotNull
+	@Override
+	public String[] getHeader() {
+		return new String[]{
+				"red",
+				"green",
+				"blue"
+		};
+	}
+
+	@NotNull
+	@Override
+	public  Object[] getData() {
+		return new Object[]{
+				cachedRGB[0],
+				cachedRGB[1],
+				cachedRGB[2]
+		};
+	}
+
+	@Override
+	public String getLogName() {
+		return "color_sensor";
+	}
 }
