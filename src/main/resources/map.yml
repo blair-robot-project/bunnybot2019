@@ -263,27 +263,27 @@ updater:
                 navX
             - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
                 PDP
-#autoStartupCommand:
-#    org.usfirst.frc.team449.robot.CommandSequence:
-#        '@id': AutoCommandSequence
-#        commandList:
-#            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
-#                '@id': DriveAuto
-#                subsystem:
-#                  org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyro:
-#                    drive
-#                velocity: 1
-#                seconds: 3
-#            - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
-#            - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-#                subsystem:
-#                    org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-#                        '@id': output
-#                        motor:
-#                          org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
-#                            outputMotor
-#                        outFastVel: 0.8
-#                mode: OUT_SLOW
+autoStartupCommand:
+    org.usfirst.frc.team449.robot.CommandSequence:
+        '@id': AutoCommandSequence
+        commandList:
+            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+                '@id': DriveAuto
+                subsystem:
+                  org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyro:
+                    drive
+                velocity: 0.25
+                seconds: 2
+            - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
+            - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+                subsystem:
+                    org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                        '@id': output
+                        motor:
+                          org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                            outputMotor
+                        outFastVel: 0.8
+                mode: OUT_FAST
 buttons:
     -   button:
             org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
