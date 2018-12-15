@@ -44,6 +44,8 @@ public class ColorSensorButton extends MappedButton implements Loggable {
 	 */
 	private long timeLastPinged;
 
+	private final boolean triggerOnAlliance;
+
 	/**
 	 * Default constructor.
 	 *
@@ -58,13 +60,15 @@ public class ColorSensorButton extends MappedButton implements Loggable {
 							 @JsonProperty(required = true) int deviceAddress,
 							 @JsonProperty(required = true) int redThreshold,
 							 @JsonProperty(required = true) int blueThreshold,
-							 @Nullable Double secondsBetweenDuinoPings) {
+							 @Nullable Double secondsBetweenDuinoPings,
+							 @JsonProperty(required = true) boolean triggerOnAlliance) {
 		this.i2c = new I2C(port, deviceAddress);
 		this.redThreshold = redThreshold;
 		this.blueThreshold = blueThreshold;
 		this.millisBetweenPings = secondsBetweenDuinoPings != null ? (long) (secondsBetweenDuinoPings * 1000) : 50;
 		this.timeLastPinged = 0;
 		this.cachedRGB = new int[3];
+		this.triggerOnAlliance = triggerOnAlliance;
 	}
 
 	private int[] readRGB() {
@@ -76,6 +80,7 @@ public class ColorSensorButton extends MappedButton implements Loggable {
 			rgb[i] = (0x000000FF) & receivedData[i];
 		}
 
+		System.out.println("Red value: " + rgb[0]);
 		return rgb;
 	}
 
@@ -93,10 +98,10 @@ public class ColorSensorButton extends MappedButton implements Loggable {
 			timeLastPinged = Clock.currentTimeMillis();
 		}
 
-		if (PracticeFrame.isOnRed()) {
-			return cachedRGB[2] > blueThreshold;
-		} else {
+		if ((PracticeFrame.isOnRed() && triggerOnAlliance) || (!PracticeFrame.isOnRed() && !triggerOnAlliance)) {
 			return cachedRGB[0] > redThreshold;
+		} else {
+			return cachedRGB[2] > blueThreshold;
 		}
 	}
 

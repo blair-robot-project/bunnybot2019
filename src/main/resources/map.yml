@@ -1,5 +1,6 @@
 ---
 onRedSwitch:
+  org.usfirst.frc.team449.robot.jacksonWrappers.MappedDigitalInput:
     '@id': allianceSwitch
     channel: 0
 logger:
@@ -15,6 +16,7 @@ logger:
                 rSquaredThreshhold: 0.75
         - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             '@id': carouselMotor
+            name: carouselMotor
             port: 7
             enableBrakeMode: false
             PDP:
@@ -29,22 +31,40 @@ logger:
             reverseSensor: false
             reverseOutput: false
             perGearSettings:
-              - kP: 1.0
+              - kP: 1.75
+#                kD: 1.0
                 feedForwardComponent:
                   org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
                     kVFwd: 1.0
                 maxSpeed: 12
-        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             '@id': outputMotor
-            port: 11
-            brakeMode: true
-        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+            name: outputMotor
+            port: 15
+            enableBrakeMode: false
+            reverseOutput: false
+            currentLimit: 35
+            enableVoltageComp: true
+            PDP:
+              org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
+            voltagePerCurrentLinReg:
+              bufferSize: 250
+              rSquaredThreshhold: 0.75
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             '@id': intakeMotor
-            port: 12
-            brakeMode: true
+            name: intakeMotor
+            port: 8
+            enableBrakeMode: false
+            reverseOutput: true
+            currentLimit: 35
+            enableVoltageComp: true
+            PDP:
+              org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
+            voltagePerCurrentLinReg:
+              bufferSize: 250
+              rSquaredThreshhold: 0.75
         - org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
             '@id': drive
-            #Wheelbase: 2.16810362021
             frontRightMotor:
                 org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     &frontRightMotor
@@ -75,7 +95,8 @@ logger:
                               kVRev: 1.04351
                               interceptVoltageRev: 0.83354
                           maxSpeed: 10.0
-#                          kP: 0.15
+                          kP: 1.0
+                          kD: 0.2
                     minNumPointsInBottomBuffer: 10
                     updaterProcessPeriodSecs: 0.005
                     statusFrameRatesMillis: !!map
@@ -192,6 +213,8 @@ logger:
         - org.usfirst.frc.team449.robot.commands.multiInterface.drive.OmnidirectionalNavXDefaultDrive:
             '@id': defaultDriveCommand
             absoluteTolerance: 0
+            kP: 0.006
+            kD: 0.03
             deadband: 2
             maxAngularVelToEnterLoop: 15
             inverted: false
@@ -208,11 +231,18 @@ logger:
                 org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
                     oi
         - org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
-            '@id': colorSensor
+            &colorButton
+            '@id': allianceColorButton
             port: kOnboard
+            secondsBetweenDuinoPings: 0.1
             deviceAddress: 4
             redThreshold: 95
-            blueThreshold: 95
+            blueThreshold: 72
+            triggerOnAlliance: true
+        - org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
+            <<: *colorButton
+            '@id': otherColorButton
+            triggerOnAlliance: false
 defaultCommands:
     - subsystem:
         org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
@@ -250,7 +280,7 @@ teleopStartupCommand:
                 motor:
                     org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                         carouselMotor
-                velocity: 0.5
+                velocity: 0.1
 updater:
     org.usfirst.frc.team449.robot.other.Updater:
         '@id': updater
@@ -275,6 +305,13 @@ autoStartupCommand:
                 velocity: 0.25
                 seconds: 2
             - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
+                absoluteTolerance: 3
+                onTargetBuffer: .5
+                setpoint: 90
+                subsystem:
+                    org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                        drive
+                timeout: 1.5
             - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
                 subsystem:
                     org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
@@ -284,35 +321,46 @@ autoStartupCommand:
                             outputMotor
                         outFastVel: 0.8
                 mode: OUT_FAST
+            - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
+                  absoluteTolerance: 3
+                  onTargetBuffer: .5
+                  setpoint: -90
+                  subsystem:
+                      org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                          drive
+                  timeout: 1.5
+            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+                  '@id': DriveAuto
+                  subsystem:
+                      org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyro:
+                          drive
+                  velocity: 0.6
+                  seconds: 4
 buttons:
     -   button:
             org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
-                colorSensor
+              allianceColorButton
         command:
-            org.usfirst.frc.team449.robot.commands.general.CommandSequence:
-                '@id': openAndCloseCarouselDoor
-                commandList:
-                    - org.usfirst.frc.team449.robot.commands.general.MappedWaitCommand:
-                        '@id': waitToReachDoor
-                        timeout: 1
-                    - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
-                        '@id': openCarouselDoor
-                        subsystem:
-                            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
-                                '@id': carouselDoor
-                                piston:
-                                    '@id': carouselDoorPiston
-                                    module: 0
-                                    forward: 1
-                                    reverse: 3
-                    - org.usfirst.frc.team449.robot.commands.general.MappedWaitCommand:
-                        '@id': waitForBallExit
-                        timeout: 1
-                    - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
-                        '@id': closeCarouselDoor
-                        subsystem:
-                            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
-                                carouselDoor
+            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
+                '@id': closeCarouselDoor
+                subsystem:
+                    org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                        '@id': carouselDoor
+                        piston:
+                            '@id': carouselDoorPiston
+                            module: 0
+                            forward: 1
+                            reverse: 3
+        action: WHEN_PRESSED
+    -   button:
+          org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
+            otherColorButton
+        command:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
+            '@id': openCarouselDoor
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                carouselDoor
         action: WHEN_PRESSED
     -   button: # Controls four pistons using the ABXY buttons and two motors using the joysticks.
           org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
@@ -329,8 +377,8 @@ buttons:
                   '@id': cubeFlipper
                   piston:
                       '@id': cubeFlipperSolenoid
-                      forward: 6
-                      reverse: 7
+                      forward: 0
+                      reverse: 2
         action: WHEN_PRESSED
     -   button:
           org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
@@ -360,9 +408,9 @@ buttons:
               org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
                 '@id': intake
                 motor:
-                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                  org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     intakeMotor
-                outFastVel: 0.8
+                inFastVel: 0.5
             mode: IN_FAST
         action: WHEN_PRESSED
     -   button: # Controls output
@@ -371,7 +419,7 @@ buttons:
             joystick:
               org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
                 driverGamepad
-            buttonNumber: 3
+            buttonNumber: 4
         command:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
             '@id': toggleOutput
@@ -379,7 +427,7 @@ buttons:
               org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
                 '@id': output
                 motor:
-                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                  org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     outputMotor
                 outFastVel: 0.8
             mode: OUT_FAST
