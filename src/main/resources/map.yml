@@ -236,7 +236,7 @@ logger:
             port: kOnboard
             secondsBetweenDuinoPings: 0.1
             deviceAddress: 4
-            redThreshold: 95
+            redThreshold: 92
             blueThreshold: 72
             triggerOnAlliance: true
         - org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
@@ -250,19 +250,6 @@ defaultCommands:
       command:
         org.usfirst.frc.team449.robot.commands.multiInterface.drive.OmnidirectionalNavXDefaultDrive:
             defaultDriveCommand
-#    - subsystem:
-#        org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-#            '@id': carouselMotorSubsystem
-#            motor:
-#                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-#                    carouselMotor
-#            maxPos: 99999
-#      command:
-#        org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
-#            '@id': defaultCommand10
-#            motor:
-#                org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-#                    carouselMotorSubsystem
 teleopStartupCommand:
   org.usfirst.frc.team449.robot.commands.general.CommandSequence:
     '@id': TeleopCommandSequence
@@ -293,27 +280,18 @@ updater:
                 navX
             - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
                 PDP
-#autoStartupCommand:
-#    org.usfirst.frc.team449.robot.CommandSequence:
-#        '@id': AutoCommandSequence
-#        commandList:
-#            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
-#                '@id': DriveAuto
-#                subsystem:
-#                  org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyro:
-#                    drive
-#                velocity: 0.5
-#                seconds: 3
-#            - org.usfirst.frc.team449.robot.commands.multiInterface.drive.NavXTurnToAngle:
-#            - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-#                subsystem:
-#                    org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-#                        '@id': output
-#                        motor:
-#                          org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
-#                            outputMotor
-#                        outFastVel: 0.8
-#                mode: OUT_SLOW
+            - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic:
+                '@id': flipCubeThrottle
+                stick:
+                  org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                    driverGamepad
+                axis: 2
+            - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic:
+                '@id': retractCubeFlipperThrottle
+                stick:
+                  org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                    driverGamepad
+                axis: 3
 buttons:
     -   button:
             org.usfirst.frc.team449.robot.oi.buttons.ColorSensorButton:
@@ -341,12 +319,12 @@ buttons:
                 carouselDoor
         action: WHEN_PRESSED
     -   button: # Controls four pistons using the ABXY buttons and two motors using the joysticks.
-          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+          org.usfirst.frc.team449.robot.oi.buttons.TriggerButton:
             '@id': flipCubeButton
-            joystick:
-              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-                driverGamepad
-            buttonNumber: 1
+            throttle:
+              org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic:
+                flipCubeThrottle
+            triggerAt: 0.8
         command:
             org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
               '@id': flipCubeCommand
@@ -359,12 +337,12 @@ buttons:
                       reverse: 2
         action: WHEN_PRESSED
     -   button:
-          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+          org.usfirst.frc.team449.robot.oi.buttons.TriggerButton:
             '@id': retractCubeFlipperButton
-            joystick:
-              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-                driverGamepad
-            buttonNumber: 2
+            throttle:
+              org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic:
+                retractCubeFlipperThrottle
+            triggerAt: 0.8
         command:
             org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
               '@id': retractCubeFlipperCommand
@@ -377,8 +355,9 @@ buttons:
             '@id': intakeButton
             joystick:
               org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-                driverGamepad
-            buttonNumber: 3
+                '@id': mechanismsGamepad
+                port: 2
+            buttonNumber: 1
         command:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
             '@id': toggleIntake
@@ -388,7 +367,7 @@ buttons:
                 motor:
                   org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     intakeMotor
-                inFastVel: 0.5
+                inFastVel: 1.0
             mode: IN_FAST
         action: WHEN_PRESSED
     -   button: # Controls output
@@ -396,7 +375,7 @@ buttons:
             '@id': outputButton
             joystick:
               org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-                driverGamepad
+                mechanismsGamepad
             buttonNumber: 4
         command:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
@@ -407,6 +386,30 @@ buttons:
                 motor:
                   org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     outputMotor
-                outFastVel: 0.8
+                outFastVel: 1
             mode: OUT_FAST
         action: WHEN_PRESSED
+autoStartupCommand:
+    org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+        '@id': AutoCommandSequence
+        commandList:
+            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+                '@id': DriveAuto
+                subsystem:
+                  org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                    drive
+                velocity: -0.4
+                seconds: 2
+            - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+                '@id': autoIntake
+                subsystem:
+                    org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                        output
+                mode: OUT_FAST
+            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+                '@id': DriveAuto2
+                subsystem:
+                  org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                    drive
+                velocity: -0.4
+                seconds: 6
