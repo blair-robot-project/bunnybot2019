@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.usfirst.frc.team449.robot.PracticeFrame;
 import org.usfirst.frc.team449.robot.components.MecanumComponent;
 import org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectional;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
+import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
@@ -17,13 +17,13 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, DriveUnidirectional, Loggable {
+public class DriveMecanumSimple extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, DriveUnidirectional {
 
 	/**
 	 * The front right, front left, rear left, and rear right Talons.
 	 */
 	@NotNull
-	private final FPSTalon frontRightMotor, frontLeftMotor, rearLeftMotor, rearRightMotor;
+	private final SimpleMotor frontRightMotor, frontLeftMotor, rearLeftMotor, rearRightMotor;
 
 	/**
 	 * The NavX gyro
@@ -32,22 +32,15 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	private final MappedAHRS ahrs;
 
 	/**
-	 * A component to convert desired velocities to motor outputs.
+	 * A mecanumComponent to convert desired velocities to motor outputs.
 	 */
 	@Nullable
-	private MecanumComponent component;
+	private MecanumComponent mecanumComponent;
 
 	/**
 	 * Whether or not to use the NavX for driving straight
 	 */
 	private boolean overrideGyro;
-
-	/**
-	 * Cached values for various sensor readings.
-	 */
-	@Nullable
-	private Double cachedFrontRightMotorVel, cachedFrontLeftMotorVel, cachedRearLeftMotorVel, cachedRearRightMotorVel,
-				   cachedFrontRightMotorPos, cachedFrontLeftMotorPos, cachedRearLeftMotorPos, cachedRearRightMotorPos;
 
 	/**
 	 * Default constructor.
@@ -59,17 +52,17 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 * @param ahrs            The NavX gyro for calculating this drive's angular displacement.
 	 */
 	@JsonCreator
-	public DriveMecanum(@NotNull @JsonProperty(required = true) FPSTalon frontRightMotor,
-	                    @NotNull @JsonProperty(required = true) FPSTalon frontLeftMotor,
-	                    @NotNull @JsonProperty(required = true) FPSTalon rearLeftMotor,
-	                    @NotNull @JsonProperty(required = true) FPSTalon rearRightMotor,
-	                    @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
+	public DriveMecanumSimple(@NotNull @JsonProperty(required = true) SimpleMotor frontRightMotor,
+	                          @NotNull @JsonProperty(required = true) SimpleMotor frontLeftMotor,
+	                          @NotNull @JsonProperty(required = true) SimpleMotor rearLeftMotor,
+	                          @NotNull @JsonProperty(required = true) SimpleMotor rearRightMotor,
+	                          @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
 		this.frontRightMotor = frontRightMotor;
 		this.frontLeftMotor = frontLeftMotor;
 		this.rearLeftMotor = rearLeftMotor;
 		this.rearRightMotor = rearRightMotor;
 		this.ahrs = ahrs;
-		component = new MecanumComponent();
+		mecanumComponent = new MecanumComponent();
 		overrideGyro = false;
 	}
 
@@ -92,8 +85,8 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public void setDirection(double desiredLongitudinalVelocity, double desiredLateralVelocity, double desiredRotationalVelocity) {
-		component.updateDesiredVelocities(desiredLongitudinalVelocity, desiredLateralVelocity, desiredRotationalVelocity, ahrs.getCachedHeading());
-		double[] motorOutputs = component.calculateMotorOutputs();
+		mecanumComponent.updateDesiredVelocities(desiredLongitudinalVelocity, desiredLateralVelocity, desiredRotationalVelocity, ahrs.getCachedHeading());
+		double[] motorOutputs = mecanumComponent.calculateMotorOutputs();
 		frontRightMotor.setVelocity(motorOutputs[0]);
 		frontLeftMotor.setVelocity(motorOutputs[1]);
 		rearLeftMotor.setVelocity(motorOutputs[2]);
@@ -105,10 +98,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public void fullStop() {
-		frontRightMotor.setPercentVoltage(0);
-		frontLeftMotor.setPercentVoltage(0);
-		rearLeftMotor.setPercentVoltage(0);
-		rearRightMotor.setPercentVoltage(0);
+		// Do nothing!
 	}
 
 	/**
@@ -127,57 +117,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public void resetPosition() {
-		frontRightMotor.resetPosition();
-		frontLeftMotor.resetPosition();
-		rearLeftMotor.resetPosition();
-		rearRightMotor.resetPosition();
-	}
-
-	/**
-	 * Get the headers for the data this subsystem logs every loop.
-	 *
-	 * @return An N-length array of String labels for data, where N is the length of the Object[] returned by getData().
-	 */
-	@NotNull
-	@Override
-	public String[] getHeader() {
-		return new String[0];
-	}
-
-	/**
-	 * Get the data this subsystem logs every loop.
-	 *
-	 * @return An N-length array of Objects, where N is the number of labels given by getHeader.
-	 */
-	@NotNull
-	@Override
-	public Object[] getData() {
-		return new Object[0];
-	}
-
-	/**
-	 * Get the name of this object.
-	 *
-	 * @return A string that will identify this object in the log file.
-	 */
-	@Override
-	public @NotNull String getLogName() {
-		return "Drive";
-	}
-
-	/**
-	 * Updates all cached values with current ones.
-	 */
-	@Override
-	public void update() {
-		cachedFrontRightMotorVel = getFrontRightMotorVel();
-		cachedFrontLeftMotorVel = getFrontLeftMotorVel();
-		cachedRearLeftMotorVel = getRearLeftMotorVel();
-		cachedRearRightMotorVel = getRearRightMotorVel();
-		cachedFrontRightMotorPos = getFrontRightMotorPos();
-		cachedFrontLeftMotorPos = getFrontLeftMotorPos();
-		cachedRearLeftMotorPos = getRearLeftMotorPos();
-		cachedRearRightMotorPos = getRearRightMotorPos();
+		// Do nothing!
 	}
 
 	/**
@@ -287,166 +227,6 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	}
 
 	/**
-	 * Get the velocity of the front right motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontRightMotorVel() {
-		return frontRightMotor.getVelocity();
-	}
-
-	/**
-	 * Get the velocity of the front left motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontLeftMotorVel() {
-		return frontLeftMotor.getVelocity();
-	}
-
-	/**
-	 * Get the velocity of the rear left motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearLeftMotorVel() {
-		return rearLeftMotor.getVelocity();
-	}
-
-	/**
-	 * Get the velocity of the rear right motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearRightMotorVel() {
-		return rearRightMotor.getVelocity();
-	}
-
-	/**
-	 * Get the position of the front right motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontRightMotorPos() {
-		return frontRightMotor.getPositionFeet();
-	}
-
-	/**
-	 * Get the position of the front left motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontLeftMotorPos() {
-		return frontLeftMotor.getPositionFeet();
-	}
-
-	/**
-	 * Get the position of the rear left motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearLeftMotorPos() {
-		return rearLeftMotor.getPositionFeet();
-	}
-
-	/**
-	 * Get the position of the rear right motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearRightMotorPos() {
-		return rearRightMotor.getPositionFeet();
-	}
-
-	/**
-	 * Get the cached velocity of the front right motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontRightMotorVelCached() {
-		return cachedFrontRightMotorVel;
-	}
-
-	/**
-	 * Get the cached velocity of the front left motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontLeftMotorVelCached() {
-		return cachedFrontLeftMotorVel;
-	}
-
-	/**
-	 * Get the cached velocity of the rear left motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearLeftMotorVelCached() {
-		return cachedRearLeftMotorVel;
-	}
-
-	/**
-	 * Get the cached velocity of the rear right motor.
-	 *
-	 * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearRightMotorVelCached() {
-		return cachedRearRightMotorVel;
-	}
-
-	/**
-	 * Get the cached position of the front right motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontRightMotorPosCached() {
-		return cachedFrontRightMotorPos;
-	}
-
-	/**
-	 * Get the cached position of the front left motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getFrontLeftMotorPosCached() {
-		return cachedFrontLeftMotorPos;
-	}
-
-	/**
-	 * Get the cached position of the rear left motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearLeftMotorPosCached() {
-		return cachedRearLeftMotorPos;
-	}
-
-	/**
-	 * Get the cached position of the rear right motor.
-	 *
-	 * @return The signed position in feet, or null if the drive doesn't have encoders.
-	 */
-	@Nullable
-	private Double getRearRightMotorPosCached() {
-		return cachedRearRightMotorPos;
-	}
-
-	/**
 	 * Set the output of each side of the drive.
 	 *
 	 * @param left  The output for the left side of the drive, from [-1, 1]
@@ -467,7 +247,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getLeftVel() {
-		return (frontLeftMotor.getVelocity() + rearLeftMotor.getVelocity()) / 2.;
+		return null;
 	}
 
 	/**
@@ -477,7 +257,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getRightVel() {
-		return (frontRightMotor.getVelocity() + rearRightMotor.getVelocity()) / 2.;
+		return null;
 	}
 
 	/**
@@ -487,7 +267,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getLeftPos() {
-		return (frontLeftMotor.getPositionFeet() + rearLeftMotor.getPositionFeet()) / 2.;
+		return null;
 	}
 
 	/**
@@ -497,7 +277,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getRightPos() {
-		return (frontRightMotor.getPositionFeet() + rearRightMotor.getPositionFeet()) / 2.;
+		return null;
 	}
 
 	/**
@@ -507,7 +287,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getLeftVelCached() {
-		return (cachedFrontLeftMotorVel + cachedRearLeftMotorVel) / 2.;
+		return null;
 	}
 
 	/**
@@ -517,7 +297,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getRightVelCached() {
-		return (cachedFrontRightMotorVel + cachedRearRightMotorVel) / 2.;
+		return null;
 	}
 
 	/**
@@ -527,7 +307,7 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getLeftPosCached() {
-		return (cachedFrontLeftMotorPos + cachedRearLeftMotorPos) / 2.;
+		return null;
 	}
 
 	/**
@@ -537,6 +317,14 @@ public class DriveMecanum extends Subsystem implements SubsystemAHRS, DriveOmnid
 	 */
 	@Override
 	public @Nullable Double getRightPosCached() {
-		return (cachedFrontRightMotorPos + cachedRearRightMotorPos) / 2.;
+		return null;
+	}
+
+	/**
+	 * Updates all cached values with current ones.
+	 */
+	@Override
+	public void update() {
+		// Do nothing!
 	}
 }
