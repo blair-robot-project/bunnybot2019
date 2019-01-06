@@ -226,13 +226,13 @@ autoStartupCommand:
 #            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
 #                '@id': DriveAutoFwd
 #                subsystem:
-#                    org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanumSimple: drive
+#                    org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
 #                velocity: -1
 #                seconds: 1.5
 #    org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
 #        '@id': DriveAutoBwd
 #        subsystem:
-#            org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanumSimple: drive
+#            org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
 #        velocity: -1
 #        seconds: 2
             - org.usfirst.frc.team449.robot.drive.unidirectional.commands.VoltageRamp:
@@ -243,7 +243,7 @@ autoStartupCommand:
 #    org.usfirst.frc.team449.robot.drive.unidirectional.commands.VoltageRamp:
 #        '@id': VoltageRampBwd
 #        subsystem:
-#            org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanumSimple: drive
+#            org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
 #        voltsPerSecond: -0.25
 buttons:
     -   button: # Controls four pistons using the ABXY buttons and two motors using the joysticks.

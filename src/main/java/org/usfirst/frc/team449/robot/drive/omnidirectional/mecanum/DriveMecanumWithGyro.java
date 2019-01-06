@@ -1,14 +1,13 @@
-package org.usfirst.frc.team449.robot.drive.omnidirectional;
+package org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum;
 
 import com.fasterxml.jackson.annotation.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.MecanumComponent;
+import org.usfirst.frc.team449.robot.drive.omnidirectional.DriveOmnidirectional;
 import org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectional;
-import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
 
@@ -17,7 +16,7 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class DriveMecanumSimple extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, DriveUnidirectional {
+public class DriveMecanumWithGyro extends Subsystem implements SubsystemAHRS, DriveOmnidirectional, DriveUnidirectional {
 
 	/**
 	 * The front right, front left, rear left, and rear right Talons.
@@ -34,7 +33,7 @@ public class DriveMecanumSimple extends Subsystem implements SubsystemAHRS, Driv
 	/**
 	 * A mecanumComponent to convert desired velocities to motor outputs.
 	 */
-	@Nullable
+	@NotNull
 	private MecanumComponent mecanumComponent;
 
 	/**
@@ -50,19 +49,25 @@ public class DriveMecanumSimple extends Subsystem implements SubsystemAHRS, Driv
 	 * @param rearLeftMotor   The motor for the rear left wheel.
 	 * @param rearRightMotor  The motor for the rear right wheel.
 	 * @param ahrs            The NavX gyro for calculating this drive's angular displacement.
+	 * @param isOConfig       Whether the drive is in O configuration. Defaults to true.
+	 * @param isFieldOriented Whether the control should be field-oriented. Defaults to true.
 	 */
 	@JsonCreator
-	public DriveMecanumSimple(@NotNull @JsonProperty(required = true) SimpleMotor frontRightMotor,
-	                          @NotNull @JsonProperty(required = true) SimpleMotor frontLeftMotor,
-	                          @NotNull @JsonProperty(required = true) SimpleMotor rearLeftMotor,
-	                          @NotNull @JsonProperty(required = true) SimpleMotor rearRightMotor,
-	                          @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
+	public DriveMecanumWithGyro(@NotNull @JsonProperty(required = true) SimpleMotor frontRightMotor,
+	                            @NotNull @JsonProperty(required = true) SimpleMotor frontLeftMotor,
+	                            @NotNull @JsonProperty(required = true) SimpleMotor rearLeftMotor,
+	                            @NotNull @JsonProperty(required = true) SimpleMotor rearRightMotor,
+	                            @NotNull @JsonProperty(required = true) MappedAHRS ahrs,
+	                            Boolean isOConfig,
+	                            Boolean isFieldOriented) {
 		this.frontRightMotor = frontRightMotor;
 		this.frontLeftMotor = frontLeftMotor;
 		this.rearLeftMotor = rearLeftMotor;
 		this.rearRightMotor = rearRightMotor;
 		this.ahrs = ahrs;
-		mecanumComponent = new MecanumComponent();
+		boolean isOConfig_ = (isOConfig == null ? true : isOConfig);
+		boolean isFieldOriented_ = (isFieldOriented == null ? true : isFieldOriented);
+		mecanumComponent = new MecanumComponent(isOConfig_, isFieldOriented_);
 		overrideGyro = false;
 	}
 
@@ -85,7 +90,8 @@ public class DriveMecanumSimple extends Subsystem implements SubsystemAHRS, Driv
 	 */
 	@Override
 	public void setDirection(double desiredLongitudinalVelocity, double desiredLateralVelocity, double desiredRotationalVelocity) {
-		mecanumComponent.updateDesiredVelocities(desiredLongitudinalVelocity, desiredLateralVelocity, desiredRotationalVelocity, ahrs.getCachedHeading());
+		mecanumComponent.updateDesiredVelocitiesAndGyro(desiredLongitudinalVelocity, desiredLateralVelocity,
+				desiredRotationalVelocity, ahrs.getCachedHeading());
 		double[] motorOutputs = mecanumComponent.calculateMotorOutputs();
 		frontRightMotor.setVelocity(motorOutputs[0]);
 		frontLeftMotor.setVelocity(motorOutputs[1]);
