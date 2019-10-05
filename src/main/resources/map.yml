@@ -340,6 +340,20 @@ buttons:
     command:
       org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
         '@id': shooterCommand
+        subsystem:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+            '@id': shooter
+            motor:
+              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                '@id': shooterMotor
+                port: 7
+                enableBrakeMode: false
+                enableVoltageComp: true
+                currentLimit: 30
+                reverseOutput: false
+            inFastVel: -1
+            inSlowVel: -0.2
+            outFastVel: 1
         mode: OUT_FAST
     action: WHILE_HELD
 autoStartupCommand:
