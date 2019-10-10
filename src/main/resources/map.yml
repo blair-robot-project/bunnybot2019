@@ -356,6 +356,10 @@ buttons:
             outFastVel: 1
         mode: OUT_FAST
     action: WHILE_HELD
+   -button:
+     command:
+     motor:
+     action:
 autoStartupCommand:
 updater:
   org.usfirst.frc.team449.robot.other.Updater:
