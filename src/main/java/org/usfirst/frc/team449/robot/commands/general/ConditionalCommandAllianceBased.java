@@ -37,3 +37,4 @@ public class ConditionalCommandAllianceBased extends ConditionalCommand {
         return DriverStation.getInstance().getAlliance().equals(DriverStation.Alliance.Red);
     }
 }
+
