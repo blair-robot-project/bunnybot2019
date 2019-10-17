@@ -237,6 +237,27 @@ logger:
             '@id': upshiftDebouncer
             bufferTimeSeconds: 0.06
           upshiftFwdThresh: 0.4
+    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+        '@id': shooterMotor
+        port: 7
+        enableBrakeMode: false
+        enableVoltageComp: true
+        currentLimit: 30
+        reverseOutput: false
+    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+        '@id': shooterMotor
+        port: 7
+        enableBrakeMode: false
+        enableVoltageComp: true
+        currentLimit: 30
+        reverseOutput: false
+    -org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+      '@id': intakeMotor
+      port: 5
+      enableBrakeMode: false
+      enableVoltageComp: true
+      currentLimit: 30
+      reverseOutput: false
 defaultCommands:
   - subsystem:
       org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
@@ -293,15 +314,9 @@ buttons:
             '@id': fuelIntake
             motor:
               org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                '@id': intakeMotor
-                port: 5
-                enableBrakeMode: false
-                enableVoltageComp: true
-                currentLimit: 30
-                reverseOutput: false
-            inFastVel: -1
+                intakeMotor
+            inFastVel: 1
             inSlowVel: -0.2
-            outFastVel: 1
         mode: IN_FAST
     action: WHEN_PRESSED
   - button:
@@ -344,22 +359,12 @@ buttons:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
             '@id': shooter
             motor:
-              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                '@id': shooterMotor
-                port: 7
-                enableBrakeMode: false
-                enableVoltageComp: true
-                currentLimit: 30
-                reverseOutput: false
+              shooterMotor
             inFastVel: -1
             inSlowVel: -0.2
             outFastVel: 1
         mode: OUT_FAST
     action: WHILE_HELD
-   -button:
-     command:
-     motor:
-     action:
 autoStartupCommand:
 updater:
   org.usfirst.frc.team449.robot.other.Updater:
