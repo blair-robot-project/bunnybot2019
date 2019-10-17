@@ -338,12 +338,12 @@ buttons:
             mechanismsGamepad
         buttonNumber: 2
     command:
-      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+      org.usfirst.frc.team449.robot.subsystem.interfaces.flywheel.commands.SpinUpThenShoot:
         '@id': shooterCommand
         subsystem:
-          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.flywheel.FlywheelSimple:
             '@id': shooter
-            motor:
+            shooterMotor:
               org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                 '@id': shooterMotor
                 port: 7
@@ -351,9 +351,20 @@ buttons:
                 enableVoltageComp: true
                 currentLimit: 30
                 reverseOutput: false
-            inFastVel: -1
-            inSlowVel: -0.2
-            outFastVel: 1
+            feederMotor:
+              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                '@id': feederMotor
+                port: 8
+                enableBrakeMode: false
+                enableVoltageComp: true
+                currentLimit: 30
+                reverseOutput: false
+            shooterVelocity: 4
+            feederVelocity: 2
+            spinUpTime: 0
+            state:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.flywheel.SubsystemFlywheel.FlywheelState:
+                state: SPINNING_UP
         mode: OUT_FAST
     action: WHILE_HELD
 autoStartupCommand:
