@@ -367,20 +367,10 @@ buttons:
           '@id': shooter
           shooterMotor:
             org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-              '@id': shooterMotor
-              port: 7
-              enableBrakeMode: false
-              enableVoltageComp: true
-              currentLimit: 30
-              reverseOutput: false
+              shooterMotor
           feederMotor:
             org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-              '@id': feederMotor
-              port: 8
-              enableBrakeMode: false
-              enableVoltageComp: true
-              currentLimit: 30
-              reverseOutput: false
+              feederMotor
           shooterVelocity: 4
           feederVelocity: 2
           spinUpTime: 0
@@ -403,12 +393,7 @@ buttons:
           '@id': carousel
           carouselMotor:
             org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-              '@id': carouselMotor
-              port: 9
-              enableBrakeMode: false
-              enableVoltageComp: true
-              currentLimit: 30
-              reverseOutput: false
+              carouselMotor
           minPos: 2
           maxPos: 6
 autoStartupCommand:
