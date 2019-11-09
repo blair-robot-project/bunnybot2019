@@ -44,7 +44,7 @@ public class FeedForwardMPElevatorComponent extends FeedForwardComponent {
         Arrays.sort(positions);
         feedForwardComponents = new FeedForwardComponent[positions.length];
         for (int i = 0; i < positions.length; i++) {
-            feedForwardComponents[i] = feetToVoltageMap.get(feedForwardComponents[i]);
+            feedForwardComponents[i] = feetToVoltageMap.get(positions[i]);
         }
     }
 
