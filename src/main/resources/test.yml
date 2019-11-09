@@ -1,0 +1,318 @@
+---
+logger:
+    '@id': logger
+    eventLogFilename: "/home/lvuser/logs/eventLog-"
+    telemetryLogFilename: "/home/lvuser/logs/telemetryLog-"
+    loggables:
+        - org.usfirst.frc.team449.robot.jacksonWrappers.AllianceDigitalInput:
+            '@id': allianceSwitch
+            channel: 0
+        - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
+            '@id': PDP
+            canID: 4
+            voltagePerCurrentLinReg:
+                bufferSize: 250
+                rSquaredThreshhold: 0.75
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            '@id': carouselMotor
+            port: 15
+            enableBrakeMode: true
+            PDP:
+                org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
+            voltagePerCurrentLinReg:
+                bufferSize: 250
+                rSquaredThreshhold: 0.75
+        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+            '@id': outputMotor
+            port: 11
+            brakeMode: true
+        - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+            '@id': intakeMotor
+            port: 12
+            brakeMode: true
+        - org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+            '@id': drive
+            #Wheelbase: 2.16810362021
+            frontRightMotor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    &frontRightMotor
+                    '@id': frontRightMotor
+                    name: frontRight
+                    port: 19
+                    PDP:
+                        org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
+                    voltagePerCurrentLinReg:
+                        bufferSize: 250
+                        rSquaredThreshhold: 0.75
+                    reverseOutput: true
+                    reverseSensor: false
+                    enableBrakeMode: true
+                    feetPerRotation: 1.6
+                    currentLimit: 35
+                    enableVoltageComp: true
+                    feedbackDevice: QuadEncoder
+                    encoderCPR: 250
+#                    perGearSettings:
+#                        - &gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.12919953323
+#                              kVFwd: 1.32498443423
+#                              interceptVoltageFwd: 0.797588
+#                              kARev: 0.15941277553
+#                              kVRev: 1.28936521731
+#                              interceptVoltageRev: 0.7743393
+#                          maxSpeed: 6.0
+#                          kP: 0.15
+                    minNumPointsInBottomBuffer: 10
+                    updaterProcessPeriodSecs: 0.005
+                    statusFrameRatesMillis: !!map
+                        Status_4_AinTempVbat : 15
+            frontLeftMotor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    <<: *frontRightMotor
+                    '@id': frontLeftMotor
+                    name: frontLeft
+                    port: 16
+                    reverseOutput: false
+                    reverseSensor: false
+#                    perGearSettings:
+#                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
+            rearLeftMotor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    <<: *frontRightMotor
+                    '@id': rearLeftMotor
+                    name: rearLeft
+                    port: 20
+                    reverseOutput: false
+                    reverseSensor: false
+#                    perGearSettings:
+#                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
+            rearRightMotor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    <<: *frontRightMotor
+                    '@id': rearRightMotor
+                    name: rearRight
+                    port: 14
+                    reverseOutput: true
+                    reverseSensor: false
+#                    perGearSettings:
+#                        - <<: *gear
+#                          feedForwardComponent:
+#                            org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardKaKvComponent:
+#                              kAFwd: 0.1131952403
+#                              kVFwd: 1.32948238154
+#                              interceptVoltageFwd: 0.793247
+#                              kARev: 0.12721050276
+#                              kVRev: 1.29887888885
+#                              interceptVoltageRev: 0.7668543
+            ahrs:
+                org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
+                    '@id': navX
+                    port: kMXP
+                    invertYaw: true
+        - org.usfirst.frc.team449.robot.oi.unidirectional.arcade.OIArcadeSimple:
+            '@id': oi
+            rotThrottle:
+                org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+                  &rotThrottle
+                  '@id': rotThrottle
+                  stick:
+                      org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                          '@id': driverGamepad
+                          port: 1
+                  axis: 4
+                  smoothingTimeSecs: 0.04
+                  deadband: 0.075
+                  inverted: true
+                  polynomial:
+                      org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
+                          '@id': rotPoly
+                          powerToCoefficientMap: !!map
+                              1 : 1
+                              3 : 3
+            velThrottle:
+                org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+                  <<: *rotThrottle
+                  '@id': velThrottle
+                  stick: driverGamepad
+                  axis: 1
+                  inverted: true
+                  deadband: 0.05
+                  polynomial:
+                      org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.Polynomial:
+                          '@id': posPoly
+                          powerToCoefficientMap: !!map
+                              1 : 2
+                              3 : 1
+            rescaleOutputs: true
+        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+            rotThrottle
+        - org.usfirst.frc.team449.robot.oi.throttles.ThrottlePolynomial:
+            velThrottle
+        - org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
+            '@id': pneumatics
+            nodeID: 0
+            pressureSensor:
+              '@id': pressureSensor
+              port: 0
+              oversampleBits: 0
+              averageBits: 0
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            frontRightMotor
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            frontLeftMotor
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            rearLeftMotor
+        - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            rearRightMotor
+        - org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
+            navX
+defaultCommands:
+    - subsystem:
+        org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+            drive
+      command:
+          org.usfirst.frc.team449.robot.drive.unidirectional.commands.SimpleUnidirectionalDrive:
+              '@id': defaultDriveCommand
+              subsystem:
+                  org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                      drive
+              oi:
+                  org.usfirst.frc.team449.robot.oi.unidirectional.arcade.OIArcadeSimple:
+                      oi
+teleopStartupCommand:
+    org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.commands.StartCompressor:
+        '@id': startCompressor
+        subsystem:
+            org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
+                pneumatics
+updater:
+    org.usfirst.frc.team449.robot.other.Updater:
+        '@id': updater
+        updatables:
+            - org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum:
+                drive
+            - org.usfirst.frc.team449.robot.oi.omnidirectional.OIOmnidirectionalSimple:
+                oi
+            - org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
+                navX
+            - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
+                PDP
+autoStartupCommand:
+    org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+        '@id': AutoCommandSequence
+        commandList:
+            - org.usfirst.frc.team449.robot.drive.commands.ResetPosition:
+                '@id': resetPosition
+                subsystem:
+                    org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum: drive
+#            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+#                '@id': DriveAutoFwd
+#                subsystem:
+#                    org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
+#                velocity: -1
+#                seconds: 1.5
+#    org.usfirst.frc.team449.robot.drive.unidirectional.commands.DriveAtSpeed:
+#        '@id': DriveAutoBwd
+#        subsystem:
+#            org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
+#        velocity: -1
+#        seconds: 2
+            - org.usfirst.frc.team449.robot.drive.unidirectional.commands.VoltageRamp:
+                '@id': VoltageRampFwd
+                subsystem:
+                    org.usfirst.frc.team449.robot.drive.omnidirectional.DriveMecanum: drive
+                voltsPerSecond: -0.25
+#    org.usfirst.frc.team449.robot.drive.unidirectional.commands.VoltageRamp:
+#        '@id': VoltageRampBwd
+#        subsystem:
+#            org.usfirst.frc.team449.robot.drive.omnidirectional.mecanum.DriveMecanumSimple: drive
+#        voltsPerSecond: -0.25
+buttons:
+    -   button: # Controls four pistons using the ABXY buttons and two motors using the joysticks.
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': flipCubeButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 1
+        command:
+            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
+              '@id': flipCubeCommand
+              subsystem:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                  '@id': cubeFlipper
+                  piston:
+                      '@id': cubeFlipperSolenoid
+                      forward: 6
+                      reverse: 7
+        action: WHEN_PRESSED
+    -   button:
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': retractCubeFlipperButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 2
+        command:
+            org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
+              '@id': retractCubeFlipperCommand
+              subsystem:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                  cubeFlipper
+        action: WHEN_PRESSED
+    -   button: # Controls intake
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': intakeButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 3
+        command:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
+            '@id': toggleIntake
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                '@id': intake
+                motor:
+                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                    intakeMotor
+                outFastVel: 0.8
+            mode: IN_FAST
+        action: WHEN_PRESSED
+    -   button: # Controls output
+          org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+            '@id': outputButton
+            joystick:
+              org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+                driverGamepad
+            buttonNumber: 3
+        command:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.ToggleIntaking:
+            '@id': toggleOutput
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                '@id': output
+                motor:
+                  org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                    outputMotor
+                outFastVel: 0.8
+            mode: OUT_FAST
+        action: WHEN_PRESSED
