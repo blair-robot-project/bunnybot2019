@@ -2,7 +2,6 @@ package org.usfirst.frc.team449.robot.withSpark;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.ControlType;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 // Needs serious looking-over.
 
@@ -21,7 +20,7 @@ public class ControlModeConverter {
             case Current:
                 return ControlType.kCurrent;
             case Follower:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             case MotionProfile:
                 return ControlType.kSmartMotion;
             case MotionMagic:
@@ -29,7 +28,7 @@ public class ControlModeConverter {
             case MotionProfileArc:
             case Disabled:
             default:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
         }
     }
 
@@ -40,16 +39,16 @@ public class ControlModeConverter {
             case kVelocity:
                 return ControlMode.Velocity;
             case kVoltage:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             case kPosition:
                 return ControlMode.Position;
             case kSmartMotion:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             case kCurrent:
                 return ControlMode.Current;
             case kSmartVelocity:
             default:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
         }
     }
 }
