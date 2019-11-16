@@ -34,7 +34,7 @@ public class ErrorConverter {
         }
     }
 
-    static ErrorCode toTalon(CANError e) {
+    static ErrorCode toTalon(final CANError e) {
         switch (e) {
             case kOk:
                 return ErrorCode.OK;
