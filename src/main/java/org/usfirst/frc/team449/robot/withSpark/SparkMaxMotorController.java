@@ -5,24 +5,33 @@ import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
-import com.revrobotics.CANEncoder;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.team254.lib.util.Util;
 import org.jetbrains.annotations.NotNull;
+import sun.util.calendar.LocalGregorianCalendar;
 
-import java.util.LinkedList;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Subclass of {@link CANSparkMax} that implements {@link BaseMotorController} functionality.
  */
 public class SparkMaxMotorController extends CANSparkMax {
-    public SparkMaxMotorController(final int deviceID, final MotorType type) {
-        super(deviceID, type);
-    }
+    private static final double VEL_EPSILON = 0.0;
+    private static final double POS_EPSILON = 0.0;
+
+    private Instant activePointActivationTime;
 
     private ControlType controlMode;
+
+    SparkMaxMotorController(final int deviceID, final MotorType type) {
+        super(deviceID, type);
+    }
 
     /**
      * @see BaseMotorController#getControlMode()
@@ -49,15 +58,18 @@ public class SparkMaxMotorController extends CANSparkMax {
     }
 
     /**
-     * Sets the appropriate output on the talon, depending on the mode.
+     * TODO: I think you're correct in that there's no way to retrieve the mode from the controller.
+     * Not only sets the value and the control type (analogous to ControlMode), but also updates it in
+     * {@link SparkWrapper#motionProfileStatus} because there is no way to retrieve it from the PID controller itself.
      *
-     * @param mode        The output mode to apply.
-     *                    In Position mode, output value is in encoder ticks or an analog value,
-     *                    depending on the sensor.
-     *                    In Follower mode, the output value is the integer device ID of the talon to
-     *                    duplicate.
-     * @param outputValue The setpoint value, as described above.
-     * @see BaseMotorController#set(com.ctre.phoenix.motorcontrol.ControlMode, double)
+     * @param outputValue The value to set, which depends on the control mode:
+     *                    * For basic control using duty cycle, this should range between -1 and 1.
+     *                    * For voltage control, this is the voltage in volts.
+     *                    * For velocity control, this is the angular velocity in RPM.
+     *                    * For position control, this is the rotation value.
+     *                    * For current control, this is the current in amps.
+     * @param mode        The control type to override with.
+     * @see BaseMotorController#set(com.ctre.phoenix.motorcontrol.ControlMode, double, double)
      */
     public void set(final ControlType mode, final double outputValue) {
         this.getPIDController().setReference(outputValue, mode);
@@ -82,24 +94,34 @@ public class SparkMaxMotorController extends CANSparkMax {
         return CANError.kNotImplmented;
     }
 
-    public ErrorCode getMotionProfileStatus(@NotNull MotionProfileStatus statusToFill) {
+    public ErrorCode getMotionProfileStatus(@NotNull final MotionProfileStatus statusToFill) {
         this.copyStatusTo(statusToFill);
         return ErrorCode.OK;
     }
 
-    public void processMotionProfileBuffer() {
-        // TODO: Doesn't seem like the PID controller supports this, so I'm doing this using the encoder.
-        // Might need to rework this in case a quadrature encoder is used.
+    private static class MotionProfileExecutor {
+        public static final MotionProfileExecutor INSTANCE = new MotionProfileExecutor();
+
+        private MotionProfileExecutor() {
+        }
+
+        public void execute() {
+            // TODO: Doesn't seem like the PID controller supports this, so I'm doing this using the encoder.
+            //  Might need to rework this in case a quadrature encoder is used.
+            //  see if we really need this, the documentation says it just moves stuff into the bottom buffer
+            //  make a different async method to process the buffer of points
+
+        }
     }
 
     public int getMotionProfileTopLevelBufferCount() {
         return this.getBufferCount();
     }
-    
+
     /**
      * Trajectory points (called the buffer by CTRE)
      */
-    public Queue<TrajectoryPoint> trajPoints = new LinkedList<>();
+    public Queue<TrajectoryPoint> trajPoints = new ConcurrentLinkedQueue<>();
 
     /**
      * Set if {@code isUnderrun} ever gets set. Only is cleared by
@@ -126,21 +148,18 @@ public class SparkMaxMotorController extends CANSparkMax {
      */
     public int profileSlotSelect1;
     private int bufferCapacity;
-    private CANEncoder encoder;
 
     /**
      * Clear the "Has Underrun" flag. Typically this is called after application
      * has confirmed an underrun had occured.
      *
-     * @param timeoutMs
-     *            Timeout value in ms. If nonzero, function will wait for config
-     *            success and report an error if it times out. If zero, no
-     *            blocking or checking is performed.
+     * @param timeoutMs Timeout value in ms. If nonzero, function will wait for config
+     *                  success and report an error if it times out. If zero, no
+     *                  blocking or checking is performed.
      * @return Error Code generated by function. 0 indicates no error.
-     * 
      * @see BaseMotorController#clearMotionProfileHasUnderrun(int)
      */
-    void clearMotionProfileHasUnderrun(int timeoutMs) {
+    void clearMotionProfileHasUnderrun(final int timeoutMs) {
         this.hasUnderrun = false;
     }
 
@@ -191,10 +210,10 @@ public class SparkMaxMotorController extends CANSparkMax {
         return !this.trajPoints.isEmpty() && this.trajPoints.peek().isLastPoint;
     }
 
-    public void copyStatusTo(MotionProfileStatus statusToFill) {
+    public void copyStatusTo(final MotionProfileStatus statusToFill) {
         statusToFill.topBufferRem = this.getBufferRem();
         statusToFill.topBufferCnt = this.getBufferCount();
-        statusToFill.btmBufferCnt = 0; // Always zero, since there technically isn't a low-level buffer.
+        statusToFill.btmBufferCnt = 0; // Always zero, since there is no low-level buffer. TODO Should it actually be 1?
         statusToFill.hasUnderrun = this.hasUnderrun();
         statusToFill.isUnderrun = this.isUnderrun();
         statusToFill.activePointValid = this.isActivePointValid();
@@ -209,18 +228,69 @@ public class SparkMaxMotorController extends CANSparkMax {
         return !this.isUnderrun(); // TODO: Dubious that this is how this actually works.
     }
 
-    public TrajectoryPoint peekActivePoint() {
+    public TrajectoryPoint activePoint() {
         return this.trajPoints.peek();
-    }
-
-    public TrajectoryPoint consumeActivePoint() {
-        return this.trajPoints.remove();
     }
 
     /**
      * The duration in ms of the current trajectory point.
      */
     public int getTimeDurMs() {
-        return this.peekActivePoint().timeDur.value;
+        return this.activePoint().timeDur.value;
+    }
+
+    /**
+     * Moves on to the next point if the active point needs to be consumed.
+     */
+    public void processMotionProfile() {
+        if (this.activePointShouldBeConsumed()) this.consumeActivePoint();
+    }
+
+    private TrajectoryPoint consumeActivePoint() {
+        final TrajectoryPoint result = this.trajPoints.poll();
+        if (this.isActivePointValid()) {
+            this.getPIDController().setReference(this.getActivePointRefValue(), this.controlMode);
+            this.activePointActivationTime = Instant.now();
+        }
+        return result;
+    }
+
+    private boolean activePointShouldBeConsumed() {
+        // We're underrun.
+        if (!this.isActivePointValid()) return true;
+
+        // Check if the current point has been running for its target duration.
+        if (this.getTimeDurMs() >= Instant.now().until(this.activePointActivationTime, ChronoUnit.MILLIS)) return true;
+
+        // Alternatively, check if the point's reference values have been reached.
+        switch (this.controlMode) {
+            case kVelocity:
+                return Util.epsilonEquals(this.getEncoder().getVelocity(), this.activePoint().velocity, SparkMaxMotorController.VEL_EPSILON);
+            case kPosition:
+                return Util.epsilonEquals(this.getEncoder().getPosition(), this.activePoint().position, SparkMaxMotorController.POS_EPSILON);
+            case kDutyCycle:
+            case kVoltage:
+            case kSmartMotion:
+            case kCurrent:
+            case kSmartVelocity:
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private double getActivePointRefValue() {
+        switch (this.controlMode) {
+            case kVelocity:
+                return this.activePoint().velocity;
+            case kPosition:
+                return this.activePoint().position;
+            case kDutyCycle:
+            case kVoltage:
+            case kSmartMotion:
+            case kCurrent:
+            case kSmartVelocity:
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 }

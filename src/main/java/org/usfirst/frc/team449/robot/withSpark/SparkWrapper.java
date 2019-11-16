@@ -1,7 +1,9 @@
 package org.usfirst.frc.team449.robot.withSpark;
 
 import com.ctre.phoenix.motion.MotionProfileStatus;
+import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
+import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -23,11 +25,6 @@ import org.usfirst.frc.team449.robot.other.Clock;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
 
-/*
-TODO READ THIS
-TODO Since Floobits doesn't have blame or version control, I'm using exclusively uppercase TODOs to indicate places where I've changed stuff.
- */
-
 import java.util.*;
 
 /**
@@ -35,6 +32,8 @@ import java.util.*;
  * todo also, make sure the slot is 0 for everything
  * Component wrapper on the SPARK MAX motor, with unit conversions to/from FPS built in. Every non-unit-conversion
  * in this class takes arguments in post-gearing FPS.
+ *
+ * @see FPSTalon
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
 public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor, Shiftable, Loggable {
@@ -75,7 +74,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     /**
      *
      */
-    private final Notifier bottomBufferLoader;
+    private final Notifier executorNotifier;
 
     /**
      * Default constructor.
@@ -115,10 +114,10 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * @param startingGear               The gear to start in. Can be null to use startingGearNum instead.
      * @param startingGearNum            The number of the gear to start in. Ignored if startingGear isn't null.
      *                                   Defaults to the lowest gear.
-     * @param minNumPointsInBottomBuffer The minimum number of points that must be in the bottom-level MP buffer before
-     *                                   starting a profile. Defaults to 20.
-     * @param updaterProcessPeriodSecs   The period for the Notifier that moves points between the MP buffers, in
-     *                                   seconds. Defaults to 0.005.
+     * @param minNumPointsInBottomBuffer The minimum number of points that must be in the MP buffer before starting a
+     *                                   profile. Defaults to 20.
+     * @param updaterProcessPeriodSecs   The period for the Notifier that loads the next MP point if the Spark has
+     *                                   attained the current one. Defaults to 0.005. TODO: Default should probably be much smaller
      * @param statusFrameRatesMillis     The update rates, in millis, for each of the Spark status frames.
      * @param controlFrameRateMillis     The update rate, in milliseconds, for each of the control frame.
      */
@@ -296,7 +295,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         if (currentLimit != null) {
             //todo either change the parameters to include a stallLimit too,
             // or just do the one parameter setSCLimit method
-            // TODO: FPSTalon isn't using peak current limit, so this code is fine as is.
+            // TODO: FPSTalon isn't using the Talon's peak current limiting, so this code is fine as is.
             this.canSpark.setSmartCurrentLimit(currentLimit);
         } else {
             //If we don't have a current limit, disable current limiting.
@@ -310,8 +309,8 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         // TODO: Don't think this is possible.
         // canSpark.configVoltageMeasurementFilter(voltageCompSamples != null ? voltageCompSamples : 32, 0);
 
-        //Set up MP notifier
-        this.bottomBufferLoader = new Notifier(this::processMotionProfileBuffer);
+        //Set up notifier for MP execution.
+        this.executorNotifier = new Notifier(this.canSpark::processMotionProfile);
 
         // TODO: I don't think Spark supports differential control, either.
         // canSpark.selectProfileSlot(0, 0);
@@ -332,25 +331,6 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
 			}
 		}*/
     }
-
-    /**
-     * TODO: I think you're correct in that there's no way to retrieve the mode from the controller.
-     * Not only sets the value and the control type (analogous to ControlMode), but also updates it in
-     * {@link SparkWrapper#motionProfileStatus} because there is no way to retrieve it from the PID controller itself.
-     *
-     * @param value    The value to set, which depends on the control mode:
-     *                 * For basic control using duty cycle, this should range between -1 and 1.
-     *                 * For voltage control, this is the voltage in volts.
-     *                 * For velocity control, this is the angular velocity in RPM.
-     *                 * For position control, this is the rotation value.
-     *                 * For current control, this is the current in amps.
-     * @param ctrlType The control type to override with.
-     * @see BaseMotorController#set(com.ctre.phoenix.motorcontrol.ControlMode, double, double)
-     */
-//    private void setControlValue(final double value, final ControlType ctrlType) {
-//        this.canSpark.getPIDController().setReference(value, ctrlType);
-//        this.controlMode = ctrlType;
-//    }
 
     /**
      * Set the motor output voltage to a given percent of available voltage.
@@ -394,9 +374,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         //  and reverse outputs, it only has a range method with max forward output
         //  and min reverse output.
         //  Also, they recommend using the SPARK MAX GUI
-        this.canSpark.getPIDController().
-                setOutputRange(this.currentGearSettings.getRevPeakOutputVoltage() / 12.,
-                        this.currentGearSettings.getFwdPeakOutputVoltage() / 12.);
+        this.canSpark.getPIDController().setOutputRange(this.currentGearSettings.getRevPeakOutputVoltage() / 12., this.currentGearSettings.getFwdPeakOutputVoltage() / 12.);
         /*talon.configPeakOutputForward(currentGearSettings.getFwdPeakOutputVoltage() / 12., 0);
         canSpark.configPeakOutputReverse(currentGearSettings.getRevPeakOutputVoltage() / 12., 0);*/
 
@@ -763,15 +741,15 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * Reset all MP-related stuff, including all points loaded in both the API and bottom-level buffers.
      */
     private void clearMP() {
-		this.canSpark.clearMotionProfileHasUnderrun(0);
-		this.canSpark.clearMotionProfileTrajectories();
+        this.canSpark.clearMotionProfileHasUnderrun(0);
+        this.canSpark.clearMotionProfileTrajectories();
     }
 
     /**
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-        /*canSpark.set(ControlMode.MotionProfile, SetValueMotionProfile.Enable.value);*/
+        canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
     }
 
     /**
@@ -780,7 +758,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * @param data The profile to load.
      */
     public void loadProfile(final MotionProfileData data) {
-        this.bottomBufferLoader.stop();
+        this.executorNotifier.stop();
         //Reset the Spark
         this.disable();
         this.clearMP();
@@ -849,7 +827,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
             // Send the point to the Spark's buffer
             this.canSpark.pushMotionProfileTrajectory(point);
         }
-        this.bottomBufferLoader.startPeriodic(this.updaterProcessPeriodSecs);
+        this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
 
 
@@ -910,13 +888,12 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * Process the motion profile buffer and stop when the top buffer is empty.
+     * Does nothing, for there is no separate top-level buffer.
+     *
+     * @see FPSTalon#processMotionProfileBuffer()
      */
     protected void processMotionProfileBuffer() {
-        this.canSpark.processMotionProfileBuffer();
-        if (this.canSpark.getMotionProfileTopLevelBufferCount() == 0) {
-            this.bottomBufferLoader.stop();
-        }
+        return;
     }
 
     /**
