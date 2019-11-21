@@ -244,13 +244,6 @@ logger:
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
-    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-        '@id': shooterMotor
-        port: 7
-        enableBrakeMode: false
-        enableVoltageComp: true
-        currentLimit: 30
-        reverseOutput: false
     -org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
       '@id': intakeMotor
       port: 5
