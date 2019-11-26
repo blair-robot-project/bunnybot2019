@@ -241,10 +241,10 @@ public class SparkMaxMotorController extends CANSparkMax {
      * Moves on to the next point if the active point needs to be consumed.
      */
     public void processMotionProfile() {
-        if (this.activePointShouldBeConsumed()) this.consumeActivePoint();
+        if (this.activePointShouldBeConsumed()) this.moveToNextPoint();
     }
 
-    private TrajectoryPoint consumeActivePoint() {
+    private TrajectoryPoint moveToNextPoint() {
         final TrajectoryPoint result = this.trajPoints.poll();
         if (this.isActivePointValid()) {
             this.getPIDController().setReference(this.getActivePointRefValue(), this.controlMode);
