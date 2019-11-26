@@ -1,4 +1,4 @@
-package org.usfirst.frc.team449.robot.withSpark;
+package org.usfirst.frc.team449.robot.sparkMax;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

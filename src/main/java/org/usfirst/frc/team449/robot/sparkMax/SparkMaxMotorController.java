@@ -1,4 +1,4 @@
-package org.usfirst.frc.team449.robot.withSpark;
+package org.usfirst.frc.team449.robot.sparkMax;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motion.MotionProfileStatus;
@@ -10,11 +10,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.team254.lib.util.Util;
 import org.jetbrains.annotations.NotNull;
-import sun.util.calendar.LocalGregorianCalendar;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

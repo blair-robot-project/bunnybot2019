@@ -1,4 +1,4 @@
-package org.usfirst.frc.team449.robot.withSpark;
+package org.usfirst.frc.team449.robot.sparkMax;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.ControlType;
