@@ -19,9 +19,9 @@ def TEAM = 449
 def ROBOT_CLASS = "org.usfirst.frc.team449.robot.PracticeFrame"
 
 repositories {
-    //todo change this to something not local
+    //todoo change this to something not local
     //com.revrobotics was not on central
-    mavenLocal()
+    //mavenLocal()
     mavenCentral()
     maven {
         name = "GradleRio"
