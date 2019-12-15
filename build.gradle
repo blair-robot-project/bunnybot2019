@@ -91,7 +91,8 @@ idea {
 /* ssh stuff */
 remotes {
     rio {
-        host = "10.4.49.2"
+
+        host = "10.4.49.2" //Radio/Ethernet
         user = 'lvuser'
         knownHosts = allowAnyHosts
     }
